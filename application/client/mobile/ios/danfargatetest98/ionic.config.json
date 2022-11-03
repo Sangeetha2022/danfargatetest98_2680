@@ -1,0 +1,7 @@
+{
+  "name": "danfargatetest98",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "ionic-angular"
+}
