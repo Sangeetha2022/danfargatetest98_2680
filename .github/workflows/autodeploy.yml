@@ -1,4 +1,4 @@
-name: auto-deploy-gepetto-dev
+name: auto-deploy
 on:
   push:
     branches: 
@@ -16,12 +16,12 @@ env:
   AWS_VPC_SECURITY_GROUP: ${{  secrets.AWS_VPC_SECURITY_GROUP  }}
   AWS_ECS_CLUSTER_NAME: ${{  secrets.AWS_ECS_CLUSTER_NAME  }}
   SERVICE_DISCOVERY_NAMESPACE: ${{  secrets.SERVICE_DISCOVERY_NAME  }}
-  PROJECT_NAME: Gepetto-dev
+  PROJECT_NAME: healthmonkstart17-5523
   AWS_S3_BUCKET_NAME: healthmonkstart17-5523.geppetto.link
   
 jobs:
   validation:
-    runs-on: self-hosted 
+    runs-on: self-hosted
     outputs:
         configuration: ${{ steps.branch-commit.outputs.configuration }}
         branch: ${{ steps.ecs.outputs.short_ref }}
@@ -32,51 +32,26 @@ jobs:
         run_frontend_jobs: ${{ steps.frontend.outputs.ui}}
         run_backend_jobs: ${{ steps.Backend.outputs.backend }}
         microservices: ${{ steps.microservice.outputs.microservices }}
-        container : ${{ steps.microservice.outputs.featuremanager }} 
-                ${{ steps.microservice.outputs.entitymanager }} 
-                ${{ steps.microservice.outputs.flowmanager }} 
-                ${{ steps.microservice.outputs.microflowmanager }} 
-                ${{ steps.microservice.outputs.menubuildermanager }}
-                ${{ steps.microservice.outputs.screenmanager }} 
-                ${{ steps.microservice.outputs.securitymanager }} 
-                ${{ steps.microservice.outputs.camundasvc }} 
-                ${{ steps.microservice.outputs.Authproxy }}
-                ${{ steps.microservice.outputs.templatemanager }} 
-                ${{ steps.microservice.outputs.apigateway }} 
-                ${{ steps.microservice.outputs.projectmanager }} 
-                ${{ steps.microservice.outputs.deletemanager }}
-                ${{ steps.microservice.outputs.githubmanager }} 
-                ${{ steps.microservice.outputs.screengenmanager }} 
-                ${{ steps.microservice.outputs.mongogenmanager }}
-                ${{ steps.microservice.outputs.admingenmanager }}
-                ${{ steps.microservice.outputs.nodegenmanager }}
-                ${{ steps.microservice.outputs.datastoremanager }} 
-                ${{ steps.microservice.outputs.inframanager }} 
-                ${{ steps.microservice.outputs.generationmanager }} 
-                ${{ steps.microservice.outputs.frontgenmanager }}
-                ${{ steps.microservice.outputs.backendgenmanager }} 
-                ${{ steps.microservice.outputs.angulargenmanager }} 
-                ${{ steps.microservice.outputs.angtemplatemanager }} 
-                ${{ steps.microservice.outputs.reactgenmanager }}
-                ${{ steps.microservice.outputs.authgenmanager }}
-                ${{ steps.microservice.outputs.sefnodegenmanager }}
-                ${{ steps.microservice.outputs.codegenmanager }} 
-                ${{ steps.microservice.outputs.ionicmanager }} 
-                ${{ steps.microservice.outputs.swaggergenmanager }}
-                ${{ steps.microservice.outputs.configmanager }}
-                ${{ steps.microservice.outputs.modifiermanager }}
-                ${{ steps.microservice.outputs.sharedfeaturesmanager }}
-                ${{ steps.microservice.outputs.sharedfeaturesgenmanager }}
-                ${{ steps.microservice.outputs.wizardmanager }}
-                ${{ steps.microservice.outputs.vaultmanager }}
-                ${{ steps.microservice.outputs.reacttemplatemanager }}
-                ${{ steps.microservice.outputs.clonemanager }}
-                ${{ steps.microservice.outputs.deploymentmanager }}
-                ${{ steps.microservice.outputs.awsdeploymentmanager }}
-                ${{ steps.microservice.outputs.privategithubmanager }}
-                ${{ steps.microservice.outputs.gepfilemanager }}          
-                ${{ steps.microservice.outputs.seffrontendmanager }}
-                ${{ steps.microservice.outputs.customtemplatemanager }}
+        container : ${{ steps.microservice.outputs.apigateway }} 
+                    ${{ steps.microservice.outputs.authproxy }}
+                    ${{ steps.microservice.outputs.systemcredentialmanager }}
+                    ${{ steps.microservice.outputs.gcam }} 
+                    ${{ steps.microservice.outputs.gepfilemanager }}
+                    ${{ steps.microservice.outputs.securitymanager }} 
+                    ${{ steps.microservice.outputs.systementry }} 
+                    ${{ steps.microservice.outputs.personmanager }}
+                    ${{ steps.microservice.outputs.adminmanager }}
+                    ${{ steps.microservice.outputs.fluentd }}
+                    ${{ steps.microservice.outputs.mongo }}                     
+                    ${{ steps.microservice.outputs.vault }}   
+                    ${{ steps.microservice.outputs.gepitemtagsmanager }}
+                    ${{ steps.microservice.outputs.homedatamanager }} 
+                    ${{ steps.microservice.outputs.mealsmanager }}
+                    ${{ steps.microservice.outputs.physicaladdressmanager }}
+                    ${{ steps.microservice.outputs.dishmanager }}
+                    ${{ steps.microservice.outputs.foodmanager }} 
+                    ${{ steps.microservice.outputs.medicationmanager }}
+                    ${{ steps.microservice.outputs.prescriptionmanager }} 
                     
     steps:
     - name: Check the  branch
@@ -138,7 +113,7 @@ jobs:
         while read path;
         do
           directory="$( echo $path )"
-          if [[ $directory != application/services/*  ]]; then
+          if [[ $directory != application/services/* && $directory != generator/services/*  ]]; then
             echo "::set-output name=backend::notcommited" 
             continue
           else
@@ -154,133 +129,85 @@ jobs:
         while read path;
         do
           directory="$( echo $path )"
-          if [[ $directory == application/services/featuremanager/* ]]; then
-            echo "::set-output name=microservices::commited" 
-            echo "::set-output name=featuremanager::featuremanager"
-            continue
-          elif [[ $directory == application/services/entitymanager/* ]]; then
-            echo "::set-output name=microservices::commited" 
-            echo "::set-output name=entitymanager::entitymanager"
-            continue
-          elif [[ $directory == application/services/flowmanager/* ]]; then
-            echo "::set-output name=microservices::commited" 
-            echo "::set-output name=flowmanager::flowmanager"
-            continue
-          elif [[ $directory == application/services/microflowmanager/* ]]; then
-            echo "::set-output name=bacmicroserviceskend::commited" 
-            echo "::set-output name=microflowmanager::microflowmanager"
-            continue
-          elif [[ $directory == application/services/menubuildermanager/* ]]; then
-            echo "::set-output name=microservices::commited" 
-            echo "::set-output name=menubuildermanager::menubuildermanager"
-            continue
-          elif [[ $directory == application/services/screenmanager/* ]]; then
-            echo "::set-output name=microservices::commited" 
-            echo "::set-output name=screenmanager::screenmanager"
-            continue
-          elif [[ $directory == application/services/securitymanager/* ]]; then
-            echo "::set-output name=microservices::commited" 
-            echo "::set-output name=securitymanager::securitymanager"
-            continue
-          elif [[ $directory == application/services/Camunda/* ]]; then
-            echo "::set-output name=microservices::commited" 
-            echo "::set-output name=camundasvc::camundasvc"
-            continue
-          elif [[ $directory == application/services/Auth-Proxy/* ]]; then
-            echo "::set-output name=microservices::commited" 
-            echo "::set-output name=Authproxy::authproxy"
-            continue
-          elif [[ $directory == application/services/templatemanager/* ]]; then
-            echo "::set-output name=microservices::commited" 
-            echo "::set-output name=templatemanager::templatemanager"
-            continue
-          elif [[ $directory == application/services/apigateway/* ]]; then
-            echo "::set-output name=microservices::commited"
-            echo "::set-output name=apigateway::apigateway" 
-            continue
-          elif [[ $directory == application/services/projectmanager/* ]]; then
-            echo "::set-output name=microservices::commited" 
-            echo "::set-output name=projectmanager::projectmanager"
-            continue
-          elif [[ $directory == application/services/deletemanager/* ]]; then
-            echo "::set-output name=microservices::commited" 
-            echo "::set-output name=deletemanager::deletemanager"
-            continue
-          elif [[ $directory == generator/services/github-manager/* ]]; then
-            echo "::set-output name=microservices::commited"
-            echo "::set-output name=githubmanager::githubmanager" 
-            continue
-          elif [[ $directory == generator/services/screen-gen-manager/* ]]; then
-            echo "::set-output name=microservices::commited"
-            echo "::set-output name=screengenmanager::screengenmanager" 
-            continue
-          elif [[ $directory == generator/services/mongo-gen-manager/* ]]; then
-            echo "::set-output name=microservices::commited"
-            echo "::set-output name=mongogenmanager::mongogenmanager" 
-            continue
-          elif [[ $directory == generator/services/Admin-manager/* ]]; then
-            echo "::set-output name=microservices::commited"
-            echo "::set-output name=admingenmanager::admingenmanager" 
-            continue
-          elif [[ $directory == generator/services/node-gen-manager/* ]]; then
-            echo "::set-output name=microservices::commited"
-            echo "::set-output name=nodegenmanager::nodegenmanager" 
-            continue
-          elif [[ $directory == generator/services/datastore-manager/* ]]; then
-            echo "::set-output name=microservices::commited"
-            echo "::set-output name=datastoremanager::datastoremanager" 
-            continue
-          elif [[ $directory == generator/services/infrastructure-manager/* ]]; then
-            echo "::set-output name=microservices::commited"
-            echo "::set-output name=inframanager::inframanager" 
-            continue
-          elif [[ $directory == generator/services/generation-manager/* ]]; then
-            echo "::set-output name=microservices::commited"
-            echo "::set-output name=generationmanager::generationmanager" 
-            continue
-          elif [[ $directory == generator/services/frontend-gen-manager/* ]]; then
-            echo "::set-output name=microservices::commited"
-            echo "::set-output name=frontgenmanager::frontgenmanager" 
-            continue
-          elif [[ $directory == generator/services/backend-gen-manager/* ]]; then
-            echo "::set-output name=microservices::commited"
-            echo "::set-output name=backendgenmanager::backendgenmanager" 
-            continue
-          elif [[ $directory == generator/services/angular-gen-manager/* ]]; then
-            echo "::set-output name=microservices::commited"
-            echo "::set-output name=angulargenmanager::angulargenmanager" 
-            continue
-          elif [[ $directory == generator/services/angular-template-manager/* ]]; then
-            echo "::set-output name=microservices::commited"
-            echo "::set-output name=angtemplatemanager::angtemplatemanager" 
-            continue
-          elif [[ $directory == generator/services/reactv16-gen-manager/* ]]; then
-            echo "::set-output name=microservices::commited"
-            echo "::set-output name=reactgenmanager::reactgenmanager" 
-            continue
-          elif [[ $directory == generator/services/configurationmanager/* ]]; then
-            echo "::set-output name=microservices::commited"
-            echo "::set-output name=configmanager::configmanager" 
-            continue
-          elif [[ $directory == generator/services/auth-gen-manager/* ]]; then
-            echo "::set-output name=microservices::commited"
-            echo "::set-output name=authgenmanager::authgenmanager" 
-            continue
-          elif [[ $directory == generator/services/code-gen-manager/* ]]; then
-            echo "::set-output name=microservices::commited"
-            echo "::set-output name=codegenmanager::codegenmanager" 
-            continue
-          elif [[ $directory == generator/services/ionic-manager/* ]]; then
-            echo "::set-output name=microservices::commited"
-            echo "::set-output name=ionicmanager::ionicmanager" 
-            continue
-          elif [[ $directory == generator/services/swagger-gen-manager/* ]]; then
-            echo "::set-output name=microservices::commited"
-            echo "::set-output name=swaggergenmanager::swaggergenmanager" 
-            continue
-          else
-            echo "::set-output name=microservices::notcommited"
-          fi
+        if [[ $directory == application/services/custom_services/apigateway/* ]]; then
+          echo "::set-output name=microservices::commited" 
+          echo "::set-output name=apigateway::apigateway"
+          continue
+        elif [[ $directory == application/services/default_services/authproxy/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=authproxy::authproxy" 
+          continue
+        elif [[ $directory == application/services/custom_services/foodmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=foodmanager::foodmanager" 
+          continue
+        elif [[ $directory == application/services/custom_services/dishmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=dishmanager::dishmanager" 
+          continue
+        elif [[ $directory == application/services/custom_services/gepitemtagsmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=gepitemtagsmanager::gepitemtagsmanager" 
+          continue
+       
+       
+        elif [[ $directory == application/services/custom_services/homedatamanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=homedatamanager::homedatamanager" 
+          continue
+        elif [[ $directory == application/services/custom_services/mealsmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=mealsmanager::mealsmanager" 
+          continue
+       
+          
+        elif [[ $directory == application/services/custom_services/personmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=personmanager::personmanager" 
+          continue
+        elif [[ $directory == application/services/custom_services/physicaladdressmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=physicaladdressmanager::physicaladdressmanager" 
+          continue
+        elif [[ $directory == application/services/custom_services/prescriptionmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=prescriptionmanager::prescriptionmanager" 
+          continue
+        elif [[ $directory == application/services/custom_services/medicationmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=medicationmanager::medicationmanager" 
+          continue
+        elif [[ $directory == application/services/custom_services/systementry/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=systementry::systementry" 
+          continue
+        elif [[ $directory == application/services/default_services/fluentd/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=fluentd::fluentd" 
+          continue
+        elif [[ $directory == application/services/default_services/gcam/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=gcam::gcam" 
+          continue
+        elif [[ $directory == application/services/default_services/gepfilemanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=gepfilemanager::gepfilemanager" 
+          continue
+        elif [[ $directory == application/services/default_services/securitymanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=securitymanager::securitymanager" 
+          continue
+        elif [[ $directory == application/services/default_services/systemcredentialmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=systemcredentialmanager::systemcredentialmanager" 
+          continue
+        elif [[ $directory == application/services/adminmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=adminmanager::adminmanager" 
+          continue
+        else
+          echo "::set-output name=microservices::notcommited"
+        fi
         done <<< "$FILE_DIFF"
         
   Build_and_upload_docker_images_to_ECR:
