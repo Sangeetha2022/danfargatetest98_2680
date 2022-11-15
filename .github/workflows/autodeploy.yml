@@ -7,17 +7,18 @@ on:
     branches: 
       - autodeploy
 env:
-  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-  AWS_ROLE_FOR_FARGATE: ${{  secrets.AWS_ROLE_FOR_FARGATE  }}
+  
   AWS_ACCESS_KEY_ID: ${{  secrets.AWS_ACCESS_KEY_ID  }}
   AWS_SECRET_ACCESS_KEY: ${{  secrets.AWS_SECRET_ACCESS_KEY  }}
   AWS_REGION: ${{  secrets.AWS_REGION  }}
-  AWS_VPC_SUBNET: ${{  secrets.AWS_VPC_SUBNET  }}
-  AWS_VPC_SECURITY_GROUP: ${{  secrets.AWS_VPC_SECURITY_GROUP  }}
-  AWS_ECS_CLUSTER_NAME: ${{  secrets.AWS_ECS_CLUSTER_NAME  }}
-  SERVICE_DISCOVERY_NAMESPACE: ${{  secrets.SERVICE_DISCOVERY_NAME  }}
-  PROJECT_NAME: healthmonkstart17-5523
-  AWS_S3_BUCKET_NAME: healthmonkstart17-5523.geppetto.link
+#   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}  
+#   AWS_ROLE_FOR_FARGATE: ${{  secrets.AWS_ROLE_FOR_FARGATE  }}
+#   AWS_VPC_SUBNET: ${{  secrets.AWS_VPC_SUBNET  }}
+#   AWS_VPC_SECURITY_GROUP: ${{  secrets.AWS_VPC_SECURITY_GROUP  }}
+#   AWS_ECS_CLUSTER_NAME: ${{  secrets.AWS_ECS_CLUSTER_NAME  }}
+#   SERVICE_DISCOVERY_NAMESPACE: ${{  secrets.SERVICE_DISCOVERY_NAME  }}
+#   PROJECT_NAME: healthmonkstart17-5523
+#   AWS_S3_BUCKET_NAME: healthmonkstart17-5523.geppetto.link
   
 jobs:
   validation:
