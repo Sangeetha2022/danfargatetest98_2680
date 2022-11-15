@@ -60,9 +60,9 @@ jobs:
     - name: Configure the aws cli
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
+        AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ env.AWS_REGION }}
     - name: branch check dev and stage
       id: branch-commit
       run: |
@@ -218,9 +218,9 @@ jobs:
       - name: Configure the aws cli
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{  env.AWS_ACCESS_KEY_ID  }}
-          aws-secret-access-key: ${{  env.AWS_SECRET_ACCESS_KEY  }}
-          aws-region: ${{  env.AWS_REGION  }}
+          AWS_ACCESS_KEY_ID: ${{  env.AWS_ACCESS_KEY_ID  }}
+          AWS_SECRET_ACCESS_KEY: ${{  env.AWS_SECRET_ACCESS_KEY  }}
+          AWS_REGION: ${{  env.AWS_REGION  }}
       - name: Checkout_Repo
         uses: actions/checkout@v2
       - name: Login to AWS ECR
