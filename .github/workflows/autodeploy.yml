@@ -1,0 +1,474 @@
+name: auto-deploy-gepetto-dev
+on:
+  push:
+    branches: 
+      - autodeploy
+  pull_request:
+    branches: 
+      - autodeploy
+env:
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  AWS_ROLE_FOR_FARGATE: ${{  secrets.AWS_ROLE_FOR_FARGATE  }}
+  AWS_ACCESS_KEY_ID: ${{  secrets.AWS_ACCESS_KEY_ID  }}
+  AWS_SECRET_ACCESS_KEY: ${{  secrets.AWS_SECRET_ACCESS_KEY  }}
+  AWS_REGION: ${{  secrets.AWS_REGION  }}
+  AWS_VPC_SUBNET: ${{  secrets.AWS_VPC_SUBNET  }}
+  AWS_VPC_SECURITY_GROUP: ${{  secrets.AWS_VPC_SECURITY_GROUP  }}
+  AWS_ECS_CLUSTER_NAME: ${{  secrets.AWS_ECS_CLUSTER_NAME  }}
+  SERVICE_DISCOVERY_NAMESPACE: ${{  secrets.SERVICE_DISCOVERY_NAME  }}
+  PROJECT_NAME: Gepetto-dev
+  AWS_S3_BUCKET_NAME: healthmonkstart17-5523.geppetto.link
+  
+jobs:
+  validation:
+    runs-on: self-hosted 
+    outputs:
+        configuration: ${{ steps.branch-commit.outputs.configuration }}
+        branch: ${{ steps.ecs.outputs.short_ref }}
+        instance: ${{ steps.branch-commit.outputs.instance }}
+        hosts: ${{ steps.branch-commit.outputs.hosts }}
+        bucket: ${{ steps.branch-commit.outputs.bucket }}
+        instance_data_value: ${{ steps.ecs.outputs.ECS_DEV }} 
+        run_frontend_jobs: ${{ steps.frontend.outputs.ui}}
+        run_backend_jobs: ${{ steps.Backend.outputs.backend }}
+        microservices: ${{ steps.microservice.outputs.microservices }}
+        container : ${{ steps.microservice.outputs.featuremanager }} 
+                ${{ steps.microservice.outputs.entitymanager }} 
+                ${{ steps.microservice.outputs.flowmanager }} 
+                ${{ steps.microservice.outputs.microflowmanager }} 
+                ${{ steps.microservice.outputs.menubuildermanager }}
+                ${{ steps.microservice.outputs.screenmanager }} 
+                ${{ steps.microservice.outputs.securitymanager }} 
+                ${{ steps.microservice.outputs.camundasvc }} 
+                ${{ steps.microservice.outputs.Authproxy }}
+                ${{ steps.microservice.outputs.templatemanager }} 
+                ${{ steps.microservice.outputs.apigateway }} 
+                ${{ steps.microservice.outputs.projectmanager }} 
+                ${{ steps.microservice.outputs.deletemanager }}
+                ${{ steps.microservice.outputs.githubmanager }} 
+                ${{ steps.microservice.outputs.screengenmanager }} 
+                ${{ steps.microservice.outputs.mongogenmanager }}
+                ${{ steps.microservice.outputs.admingenmanager }}
+                ${{ steps.microservice.outputs.nodegenmanager }}
+                ${{ steps.microservice.outputs.datastoremanager }} 
+                ${{ steps.microservice.outputs.inframanager }} 
+                ${{ steps.microservice.outputs.generationmanager }} 
+                ${{ steps.microservice.outputs.frontgenmanager }}
+                ${{ steps.microservice.outputs.backendgenmanager }} 
+                ${{ steps.microservice.outputs.angulargenmanager }} 
+                ${{ steps.microservice.outputs.angtemplatemanager }} 
+                ${{ steps.microservice.outputs.reactgenmanager }}
+                ${{ steps.microservice.outputs.authgenmanager }}
+                ${{ steps.microservice.outputs.sefnodegenmanager }}
+                ${{ steps.microservice.outputs.codegenmanager }} 
+                ${{ steps.microservice.outputs.ionicmanager }} 
+                ${{ steps.microservice.outputs.swaggergenmanager }}
+                ${{ steps.microservice.outputs.configmanager }}
+                ${{ steps.microservice.outputs.modifiermanager }}
+                ${{ steps.microservice.outputs.sharedfeaturesmanager }}
+                ${{ steps.microservice.outputs.sharedfeaturesgenmanager }}
+                ${{ steps.microservice.outputs.wizardmanager }}
+                ${{ steps.microservice.outputs.vaultmanager }}
+                ${{ steps.microservice.outputs.reacttemplatemanager }}
+                ${{ steps.microservice.outputs.clonemanager }}
+                ${{ steps.microservice.outputs.deploymentmanager }}
+                ${{ steps.microservice.outputs.awsdeploymentmanager }}
+                ${{ steps.microservice.outputs.privategithubmanager }}
+                ${{ steps.microservice.outputs.gepfilemanager }}          
+                ${{ steps.microservice.outputs.seffrontendmanager }}
+                ${{ steps.microservice.outputs.customtemplatemanager }}
+                    
+    steps:
+    - name: Check the  branch
+      uses: actions/checkout@v2
+    - name: Configure the aws cli
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    - name: branch check dev and stage
+      id: branch-commit
+      run: |
+        if [ ${{steps.ecs.outputs.short_ref}} == 'dev' ]; then
+        echo "::set-output name=instance::${{ steps.ec2.outputs.ECS_DEV }}" 
+
+        elif [ ${{steps.ecs.outputs.short_ref}} == 'stage' ]; then
+        echo "::set-output name=instance::${{steps.ec2.outputs.ECS_STAGE}}" 
+
+        fi  
+    - name:  Status of Instance 
+      run: |
+        echo ${{steps.ecs.outputs.short_ref}} "is" ${{ steps.branch-commit.outputs.instance }}
+    - uses: actions/checkout@v3
+    - name: Check for changes
+      id: diff
+      run: |
+        if [ $GITHUB_BASE_REF ]; then
+        git fetch origin $GITHUB_BASE_REF --depth=1
+        export FILE_DIFF=$( git diff --name-only origin/$GITHUB_BASE_REF $GITHUB_SHA )
+        echo "Diff between origin/$GITHUB_BASE_REF and $GITHUB_SHA"
+        else
+        git fetch origin ${{ github.event.before }} --depth=1
+        export FILE_DIFF=$( git diff --name-only ${{ github.event.before }} $GITHUB_SHA )
+        echo "Diff between ${{ github.event.before }} and $GITHUB_SHA"
+        fi
+        echo "$FILE_DIFF"
+        echo "::set-output name=diff::$( echo "$FILE_DIFF" | sed ':a;N;$!ba;s/\n/%0A/g' )"
+    - name: UI to build function
+      id: frontend
+      run: |
+        FILE_DIFF="${{ steps.diff.outputs.diff }}"
+        while read path;
+        do
+        directory="$( echo $path )"
+        if [[ $directory != application/clients/desktop/* ]]; then
+          echo "::set-output name=ui::notcommited" 
+          continue
+        else
+          echo "::set-output name=ui::commited"
+          break
+        fi
+        done <<< "$FILE_DIFF"
+    - name: Backend function to build
+      if: ${{ steps.branch-commit.outputs.instance }} == '"running"'
+      id: Backend
+      run: |
+        FILE_DIFF="${{ steps.diff.outputs.diff }}"
+        while read path;
+        do
+          directory="$( echo $path )"
+          if [[ $directory != application/services/*  ]]; then
+            echo "::set-output name=backend::notcommited" 
+            continue
+          else
+            echo "::set-output name=backend::commited"
+            break
+          fi
+        done <<< "$FILE_DIFF"
+    - name: Microservices to check run
+      if: steps.Backend.outputs.backend == 'commited'
+      id: microservice
+      run: |
+        FILE_DIFF="${{ steps.diff.outputs.diff }}"
+        while read path;
+        do
+          directory="$( echo $path )"
+          if [[ $directory == application/services/featuremanager/* ]]; then
+            echo "::set-output name=microservices::commited" 
+            echo "::set-output name=featuremanager::featuremanager"
+            continue
+          elif [[ $directory == application/services/entitymanager/* ]]; then
+            echo "::set-output name=microservices::commited" 
+            echo "::set-output name=entitymanager::entitymanager"
+            continue
+          elif [[ $directory == application/services/flowmanager/* ]]; then
+            echo "::set-output name=microservices::commited" 
+            echo "::set-output name=flowmanager::flowmanager"
+            continue
+          elif [[ $directory == application/services/microflowmanager/* ]]; then
+            echo "::set-output name=bacmicroserviceskend::commited" 
+            echo "::set-output name=microflowmanager::microflowmanager"
+            continue
+          elif [[ $directory == application/services/menubuildermanager/* ]]; then
+            echo "::set-output name=microservices::commited" 
+            echo "::set-output name=menubuildermanager::menubuildermanager"
+            continue
+          elif [[ $directory == application/services/screenmanager/* ]]; then
+            echo "::set-output name=microservices::commited" 
+            echo "::set-output name=screenmanager::screenmanager"
+            continue
+          elif [[ $directory == application/services/securitymanager/* ]]; then
+            echo "::set-output name=microservices::commited" 
+            echo "::set-output name=securitymanager::securitymanager"
+            continue
+          elif [[ $directory == application/services/Camunda/* ]]; then
+            echo "::set-output name=microservices::commited" 
+            echo "::set-output name=camundasvc::camundasvc"
+            continue
+          elif [[ $directory == application/services/Auth-Proxy/* ]]; then
+            echo "::set-output name=microservices::commited" 
+            echo "::set-output name=Authproxy::authproxy"
+            continue
+          elif [[ $directory == application/services/templatemanager/* ]]; then
+            echo "::set-output name=microservices::commited" 
+            echo "::set-output name=templatemanager::templatemanager"
+            continue
+          elif [[ $directory == application/services/apigateway/* ]]; then
+            echo "::set-output name=microservices::commited"
+            echo "::set-output name=apigateway::apigateway" 
+            continue
+          elif [[ $directory == application/services/projectmanager/* ]]; then
+            echo "::set-output name=microservices::commited" 
+            echo "::set-output name=projectmanager::projectmanager"
+            continue
+          elif [[ $directory == application/services/deletemanager/* ]]; then
+            echo "::set-output name=microservices::commited" 
+            echo "::set-output name=deletemanager::deletemanager"
+            continue
+          elif [[ $directory == generator/services/github-manager/* ]]; then
+            echo "::set-output name=microservices::commited"
+            echo "::set-output name=githubmanager::githubmanager" 
+            continue
+          elif [[ $directory == generator/services/screen-gen-manager/* ]]; then
+            echo "::set-output name=microservices::commited"
+            echo "::set-output name=screengenmanager::screengenmanager" 
+            continue
+          elif [[ $directory == generator/services/mongo-gen-manager/* ]]; then
+            echo "::set-output name=microservices::commited"
+            echo "::set-output name=mongogenmanager::mongogenmanager" 
+            continue
+          elif [[ $directory == generator/services/Admin-manager/* ]]; then
+            echo "::set-output name=microservices::commited"
+            echo "::set-output name=admingenmanager::admingenmanager" 
+            continue
+          elif [[ $directory == generator/services/node-gen-manager/* ]]; then
+            echo "::set-output name=microservices::commited"
+            echo "::set-output name=nodegenmanager::nodegenmanager" 
+            continue
+          elif [[ $directory == generator/services/datastore-manager/* ]]; then
+            echo "::set-output name=microservices::commited"
+            echo "::set-output name=datastoremanager::datastoremanager" 
+            continue
+          elif [[ $directory == generator/services/infrastructure-manager/* ]]; then
+            echo "::set-output name=microservices::commited"
+            echo "::set-output name=inframanager::inframanager" 
+            continue
+          elif [[ $directory == generator/services/generation-manager/* ]]; then
+            echo "::set-output name=microservices::commited"
+            echo "::set-output name=generationmanager::generationmanager" 
+            continue
+          elif [[ $directory == generator/services/frontend-gen-manager/* ]]; then
+            echo "::set-output name=microservices::commited"
+            echo "::set-output name=frontgenmanager::frontgenmanager" 
+            continue
+          elif [[ $directory == generator/services/backend-gen-manager/* ]]; then
+            echo "::set-output name=microservices::commited"
+            echo "::set-output name=backendgenmanager::backendgenmanager" 
+            continue
+          elif [[ $directory == generator/services/angular-gen-manager/* ]]; then
+            echo "::set-output name=microservices::commited"
+            echo "::set-output name=angulargenmanager::angulargenmanager" 
+            continue
+          elif [[ $directory == generator/services/angular-template-manager/* ]]; then
+            echo "::set-output name=microservices::commited"
+            echo "::set-output name=angtemplatemanager::angtemplatemanager" 
+            continue
+          elif [[ $directory == generator/services/reactv16-gen-manager/* ]]; then
+            echo "::set-output name=microservices::commited"
+            echo "::set-output name=reactgenmanager::reactgenmanager" 
+            continue
+          elif [[ $directory == generator/services/configurationmanager/* ]]; then
+            echo "::set-output name=microservices::commited"
+            echo "::set-output name=configmanager::configmanager" 
+            continue
+          elif [[ $directory == generator/services/auth-gen-manager/* ]]; then
+            echo "::set-output name=microservices::commited"
+            echo "::set-output name=authgenmanager::authgenmanager" 
+            continue
+          elif [[ $directory == generator/services/code-gen-manager/* ]]; then
+            echo "::set-output name=microservices::commited"
+            echo "::set-output name=codegenmanager::codegenmanager" 
+            continue
+          elif [[ $directory == generator/services/ionic-manager/* ]]; then
+            echo "::set-output name=microservices::commited"
+            echo "::set-output name=ionicmanager::ionicmanager" 
+            continue
+          elif [[ $directory == generator/services/swagger-gen-manager/* ]]; then
+            echo "::set-output name=microservices::commited"
+            echo "::set-output name=swaggergenmanager::swaggergenmanager" 
+            continue
+          else
+            echo "::set-output name=microservices::notcommited"
+          fi
+        done <<< "$FILE_DIFF"
+        
+  Build_and_upload_docker_images_to_ECR:
+   
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure the aws cli
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{  env.AWS_ACCESS_KEY_ID  }}
+          aws-secret-access-key: ${{  env.AWS_SECRET_ACCESS_KEY  }}
+          aws-region: ${{  env.AWS_REGION  }}
+      - name: Checkout_Repo
+        uses: actions/checkout@v2
+      - name: Login to AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{  steps.login-ecr.outputs.registry  }}
+          IMAGE_TAG: latest
+        run: | 
+         cd application/services/default_services/authproxy
+          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-authproxy:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-authproxy:$IMAGE_TAG
+          echo "Successfully build the docker image for authproxy  and pushed to aws ecr"
+
+          cd ../securitymanager
+          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-securitymanager:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-securitymanager:$IMAGE_TAG
+          echo "Successfully build the  docker image for securitymanager and pushed to aws ecr"
+
+          cd ../systemcredentialmanager
+          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-systemcredentialmanager:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-systemcredentialmanager:$IMAGE_TAG
+          echo "Successfully build the  docker image for systemcredentialmanager and pushed to aws ecr"
+          
+          cd ../gcam
+          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-gcam:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-gcam:$IMAGE_TAG
+          echo "Successfully build the docker image for gcam  and pushed to aws ecr"
+
+          cd ../gepfilemanager
+          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-gepfilemanager:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-gepfilemanager:$IMAGE_TAG
+          echo "Successfully build the  docker image for gepfilemanager and pushed to aws ecr"
+
+          cd ../fluentd/fluend
+          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-fluentd:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-fluentd:$IMAGE_TAG
+          echo "Successfully build the  docker image for fluentd and pushed to aws ecr"
+
+          cd ../../../custom_services/apigateway
+          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-apigateway:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-apigateway:$IMAGE_TAG
+          echo "Successfully build the docker image for apigateway and pushed to aws ecr"
+
+          cd ../systementry
+          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-systementry:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-systementry:$IMAGE_TAG
+          echo "Successfully build the docker image for systementry and pushed to aws ecr"
+          
+          cd ../personmanager
+          docker build -t $ECR_REGISTRY/geppetto-healthmonk-personmanager:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-healthmonk-personmanager:$IMAGE_TAG
+          echo "Successfully build the docker image for personmanager and pushed to aws ecr"
+         
+          cd ../dishmanager
+          docker build -t $ECR_REGISTRY/geppetto-healthmonk-dishmanager:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-healthmonk-dishmanager:$IMAGE_TAG
+          echo "Successfully build the docker image for dishmanager and pushed to aws ecr"
+         
+          cd ../foodmanager
+          docker build -t $ECR_REGISTRY/geppetto-healthmonk-foodmanager:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-healthmonk-foodmanager:$IMAGE_TAG
+          echo "Successfully build the docker image for foodmanager and pushed to aws ecr"
+         
+          cd ../gepitemtagsmanager
+          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-gepitemtagsmanager:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-gepitemtagsmanager:$IMAGE_TAG
+          echo "Successfully build the docker image for gepitemtagsmanager and pushed to aws ecr"
+          
+          cd ../homedatamanager
+          docker build -t $ECR_REGISTRY/geppetto-healthmonk-homedatamanager:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-healthmonk-homedatamanager:$IMAGE_TAG
+          echo "Successfully build the docker image for homedatamanager and pushed to aws ecr"
+          
+          cd ../mealsmanager
+          docker build -t $ECR_REGISTRY/geppetto-healthmonk-mealsmanager:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-healthmonk-mealsmanager:$IMAGE_TAG
+          echo "Successfully build the docker image for mealsmanager and pushed to aws ecr"
+          
+          cd ../medicationmanager
+          docker build -t $ECR_REGISTRY/geppetto-healthmonk-medicationmanager:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-healthmonk-medicationmanager:$IMAGE_TAG
+          echo "Successfully build the docker image for medicationmanager and pushed to aws ecr"       
+          
+          
+          cd ../physicaladdressmanager
+          docker build -t $ECR_REGISTRY/geppetto-healthmonk-physicaladdressmanager:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-healthmonk-physicaladdressmanager:$IMAGE_TAG
+          echo "Successfully build the docker image for physicaladdressmanager and pushed to aws ecr"
+          
+          cd ../prescriptionmanager
+          docker build -t $ECR_REGISTRY/geppetto-healthmonk-prescriptionmanager:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-healthmonk-prescriptionmanager:$IMAGE_TAG
+          echo "Successfully build the docker image for prescriptionmanager and pushed to aws ecr"
+         
+          
+          
+          
+          
+         
+ #------------- Amazon ECS task definition6 ----------------#  
+      - name: Render Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+         task-definition: .github/workflows/healthmonkstart17.json
+         container-name: apigateway-5523
+         image: 967636366309.dkr.ecr.us-east-1.amazonaws.com/geppetto-generatedcode-healthmonkstart17-5523-apigateway:latest
+
+      - name: Deploy to Amazon ECS service
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+         task-definition: .github/workflows/healthmonkstart17.json
+         service: healthmonkstart17
+         cluster: ${{  env.AWS_ECS_CLUSTER_NAME  }} 
+
+
+      - name: Deploying ECS task definition with Service
+        run: |
+          aws ecs update-service --cluster ${{  env.AWS_ECS_CLUSTER_NAME  }} --service healthmonkstart17 --desired-count 1 --force-new-deployment --region ${{  env.AWS_REGION  }}          
+          
+ #------------- Amazon ECS task definition6 ----------------#  
+      - name: Render Amazon ECS task definition
+        id: task-def1
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+         task-definition: .github/workflows/healthmonkstart170.json
+         container-name: personmanager-5523
+         image: 967636366309.dkr.ecr.us-east-1.amazonaws.com/geppetto-healthmonk-personmanager:latest
+
+      - name: Deploy to Amazon ECS service
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+         task-definition: .github/workflows/healthmonkstart170.json
+         service: healthmonkstart170
+         cluster: ${{  env.AWS_ECS_CLUSTER_NAME  }} 
+
+
+      - name: Deploying ECS task definition with Service
+        run: |
+          aws ecs update-service --cluster ${{  env.AWS_ECS_CLUSTER_NAME  }} --service healthmonkstart170 --desired-count 1 --force-new-deployment --region ${{  env.AWS_REGION  }} 
+    
+    
+     
+    
+         
+#------------- Upload to S3 -----------------#           
+  Upload_S3_Bucket:
+     runs-on: ubuntu-latest
+     needs: validation
+     
+     steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - name: Install the node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.17  
+      - name: Installing angular/cli
+        run: npm install -g @angular/cli
+      - name: Installing the node modules
+        working-directory: ./application/client/web/healthmonkstart17
+        run: |
+          npm install
+          
+      - name: Production build
+        working-directory: ./application/client/web/healthmonkstart17
+        run: ng build
+      - uses: jakejarvis/s3-sync-action@v0.5.1
+        with:
+          args: --acl public-read --delete
+        env:
+          AWS_S3_BUCKET: ${{  env.AWS_S3_BUCKET  }}
+          AWS_ACCESS_KEY_ID: ${{  env.AWS_ACCESS_KEY_ID  }}
+          AWS_SECRET_ACCESS_KEY: ${{  env.AWS_SECRET_ACCESS_KEY  }}
+          AWS_REGION: ${{  env.AWS_REGION  }}
+          SOURCE_DIR: "application/client/web/healthmonkstart17/dist/healthmonkstart17"       
+          
