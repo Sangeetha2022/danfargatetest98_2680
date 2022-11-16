@@ -277,7 +277,68 @@ jobs:
         run: |
           aws ecr create-repository --repository-name geppetto-generatedcode-healthmonkstart17-5523-apigateway 
           aws ecr create-repository --repository-name geppetto-generatedcode-healthmonkstart17-5523-authproxy 
-          aws ecr create-repository --repository-name geppetto-generatedcode-healthmonkstart17-5523-securitymanager
+          aws ecr create-repository --repository-name geppetto-generatedcode-healthmonkstart17-5523-securitymanager 
+          aws ecr create-repository --repository-name geppetto-generatedcode-healthmonkstart17-5523-systemcredentialmanager 
+          aws ecr create-repository --repository-name geppetto-generatedcode-healthmonkstart17-5523-gcam 
+          aws ecr create-repository --repository-name geppetto-generatedcode-healthmonkstart17-5523-gepfilemanager 
+          aws ecr create-repository --repository-name geppetto-generatedcode-healthmonkstart17-5523-fluentd 
+          aws ecr create-repository --repository-name geppetto-generatedcode-healthmonkstart17-5523-systementry 
+          aws ecr create-repository --repository-name geppetto-generatedcode-healthmonkstart17-5523-personmanager 
+  Build_and_upload_docker_images_to_ECR:
+    
+    runs-on: self-hosted
+    steps:
+      
+      - name: Checkout_Repo
+        uses: actions/checkout@v2
+      - name: Login to AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{  steps.login-ecr.outputs.registry  }}
+          IMAGE_TAG: latest
+        run: |
+     
+          cd application/services/default_services/authproxy
+          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-authproxy:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-authproxy:$IMAGE_TAG
+          echo "Successfully build the docker image for authproxy  and pushed to aws ecr"
+
+          cd ../securitymanager
+          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-securitymanager:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-securitymanager:$IMAGE_TAG
+          echo "Successfully build the  docker image for securitymanager and pushed to aws ecr"
+
+          cd ../systemcredentialmanager
+          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-systemcredentialmanager:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-systemcredentialmanager:$IMAGE_TAG
+          echo "Successfully build the  docker image for systemcredentialmanager and pushed to aws ecr"
+          
+          cd ../gcam
+          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-gcam:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-gcam:$IMAGE_TAG
+          echo "Successfully build the docker image for gcam  and pushed to aws ecr"
+
+          cd ../gepfilemanager
+          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-gepfilemanager:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-gepfilemanager:$IMAGE_TAG
+          echo "Successfully build the  docker image for gepfilemanager and pushed to aws ecr"
+
+          cd ../fluentd/fluend
+          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-fluentd:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-fluentd:$IMAGE_TAG
+          echo "Successfully build the  docker image for fluentd and pushed to aws ecr"
+
+          cd ../../../custom_services/apigateway
+          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-apigateway:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-apigateway:$IMAGE_TAG
+          echo "Successfully build the docker image for apigateway and pushed to aws ecr"
+
+          cd ../systementry
+          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-systementry:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-systementry:$IMAGE_TAG
+          echo "Successfully build the docker image for systementry and pushed to aws ecr"
       
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
