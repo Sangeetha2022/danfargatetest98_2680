@@ -30,11 +30,11 @@ jobs:
         run_backend_jobs: ${{ steps.Backend.outputs.backend }}
         microservices: ${{ steps.microservice.outputs.microservices }}
         container : 
-                ${{ steps.microservice.outputs.new-securitymanager }} 
+                ${{ steps.microservice.outputs.securitymanager }} 
                 
-                ${{ steps.microservice.outputs.new-Authproxy }}
+                ${{ steps.microservice.outputs.authproxy }}
                 
-                ${{ steps.microservice.outputs.new-apigateway }} 
+                ${{ steps.microservice.outputs.apigateway }} 
                 
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -122,15 +122,15 @@ jobs:
           while read path;
           do
           directory="$( echo $path )"
-          if [[ $directory == application/services/new-securitymanager/* ]]; then
+          if [[ $directory == application/services/securitymanager/* ]]; then
             echo "::set-output name=microservices::commited" 
             echo "::set-output name=securitymanager::securitymanager"
             continue   
-          elif [[ $directory == application/services/new-Auth-Proxy/* ]]; then
+          elif [[ $directory == application/services/Auth-Proxy/* ]]; then
             echo "::set-output name=microservices::commited" 
             echo "::set-output name=Authproxy::authproxy"
             continue     
-          elif [[ $directory == application/services/new-apigateway/* ]]; then
+          elif [[ $directory == application/services/apigateway/* ]]; then
             echo "::set-output name=microservices::commited"
             echo "::set-output name=apigateway::apigateway" 
             continue
@@ -142,9 +142,9 @@ jobs:
           done <<< "$FILE_DIFF"  
       - name: Creating the aws ECR for each micro service
         run: |
-          aws ecr create-repository --repository-name new-apigateway 
-          aws ecr create-repository --repository-name new-authproxy 
-          aws ecr create-repository --repository-name new-securitymanager 
+          aws ecr create-repository --repository-name geppetto-generatedcode-healthmonkstart17-5523-apigateway 
+          aws ecr create-repository --repository-name geppetto-generatedcode-healthmonkstart17-5523-authproxy 
+          aws ecr create-repository --repository-name geppetto-generatedcode-healthmonkstart17-5523-securitymanager 
           
   Build_and_upload_docker_images_to_ECR:
     
@@ -158,21 +158,21 @@ jobs:
           IMAGE_TAG: latest
         run: |
      
-          cd application/services/default_services/new-authproxy
-          docker build -t $ECR_REGISTRY/new-authproxy:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/new--authproxy:$IMAGE_TAG
+          cd application/services/default_services/authproxy
+          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-authproxy:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-authproxy:$IMAGE_TAG
           echo "Successfully build the docker image for authproxy  and pushed to aws ecr"
 
-          cd ../new-securitymanager
-          docker build -t $ECR_REGISTRY/new-securitymanager:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/new-securitymanager:$IMAGE_TAG
+          cd ../securitymanager
+          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-securitymanager:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-securitymanager:$IMAGE_TAG
           echo "Successfully build the  docker image for securitymanager and pushed to aws ecr"
 
           
 
-          cd ../../../custom_services/new-apigateway
-          docker build -t $ECR_REGISTRY/new-apigateway:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/new-apigateway:$IMAGE_TAG
+          cd ../../../custom_services/apigateway
+          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-apigateway:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-apigateway:$IMAGE_TAG
           echo "Successfully build the docker image for apigateway and pushed to aws ecr"
 
           
