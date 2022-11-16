@@ -88,7 +88,55 @@ jobs:
           echo "::set-output name=bucket::geppetto-stage"
           echo "::set-output name=configuration::production" 
           fi
-
+      - name:  Status of Instance 
+        run: |
+          echo ${{steps.ec2.outputs.short_ref}} "is" ${{ steps.branch-commit.outputs.instance }}
+      - uses: actions/checkout@v2
+      - name: Check for changes
+        id: diff
+        run: |
+          if [ $GITHUB_BASE_REF ]; then
+          git fetch origin $GITHUB_BASE_REF --depth=1
+          export FILE_DIFF=$( git diff --name-only origin/$GITHUB_BASE_REF $GITHUB_SHA )
+          echo "Diff between origin/$GITHUB_BASE_REF and $GITHUB_SHA"
+          else
+          git fetch origin ${{ github.event.before }} --depth=1
+          export FILE_DIFF=$( git diff --name-only ${{ github.event.before }} $GITHUB_SHA )
+          echo "Diff between ${{ github.event.before }} and $GITHUB_SHA"
+          fi
+          echo "$FILE_DIFF"
+          echo "::set-output name=diff::$( echo "$FILE_DIFF" | sed ':a;N;$!ba;s/\n/%0A/g' )"
+      - name: UI to build function
+        id: frontend
+        run: |
+          FILE_DIFF="${{ steps.diff.outputs.diff }}"
+          while read path;
+          do
+          directory="$( echo $path )"
+          if [[ $directory != application/clients/desktop/* ]]; then
+            echo "::set-output name=ui::notcommited" 
+            continue
+          else
+            echo "::set-output name=ui::commited"
+            break
+          fi
+          done <<< "$FILE_DIFF"
+      - name: Backend function to build
+        if: ${{ steps.branch-commit.outputs.instance }} == '"running"'
+        id: Backend
+        run: |
+          FILE_DIFF="${{ steps.diff.outputs.diff }}"
+          while read path;
+          do
+          directory="$( echo $path )"
+          if [[ $directory != application/services/* && $directory != generator/services/*  ]]; then
+            echo "::set-output name=backend::notcommited" 
+            continue
+          else
+            echo "::set-output name=backend::commited"
+            break
+          fi
+          done <<< "$FILE_DIFF"
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
