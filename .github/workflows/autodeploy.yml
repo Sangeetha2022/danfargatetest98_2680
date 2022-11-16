@@ -158,21 +158,21 @@ jobs:
           IMAGE_TAG: latest
         run: |
      
-          cd application/services/default_services/authproxy
+          cd application/services/default_services/new-authproxy
           docker build -t $ECR_REGISTRY/new-authproxy:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-authproxy:$IMAGE_TAG
+          docker push $ECR_REGISTRY/new--authproxy:$IMAGE_TAG
           echo "Successfully build the docker image for authproxy  and pushed to aws ecr"
 
-          cd ../securitymanager
+          cd ../new-securitymanager
           docker build -t $ECR_REGISTRY/new-securitymanager:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-securitymanager:$IMAGE_TAG
+          docker push $ECR_REGISTRY/new-securitymanager:$IMAGE_TAG
           echo "Successfully build the  docker image for securitymanager and pushed to aws ecr"
 
           
 
-          cd ../../../custom_services/apigateway
+          cd ../../../custom_services/new-apigateway
           docker build -t $ECR_REGISTRY/new-apigateway:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-apigateway:$IMAGE_TAG
+          docker push $ECR_REGISTRY/new-apigateway:$IMAGE_TAG
           echo "Successfully build the docker image for apigateway and pushed to aws ecr"
 
           
