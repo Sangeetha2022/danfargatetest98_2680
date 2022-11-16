@@ -334,7 +334,7 @@ jobs:
           cd ../systementry
           docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-systementry:$IMAGE_TAG .
           docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-systementry:$IMAGE_TAG
-          echo "Successfully build the docker image for systementry and pushed to aws ecr"
+          echo "Successfully build the docker image for systementry and pushed to aws ecr."
       
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
