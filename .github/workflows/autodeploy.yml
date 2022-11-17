@@ -158,7 +158,7 @@ jobs:
           cd application/services/default_services/authproxy
           docker build -t $ECR_REGISTRY/authproxy1:$IMAGE_TAG .
           docker push $ECR_REGISTRY/authproxy1:$IMAGE_TAG
-          echo "Successfully build the docker image for authproxy  and pushed to aws ecr."
+          echo "Successfully built the docker image for authproxy  and pushed to aws ecr"
            
       
       # Runs a set of commands using the runners shell
