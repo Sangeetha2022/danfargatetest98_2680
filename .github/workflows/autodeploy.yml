@@ -176,7 +176,7 @@ jobs:
           cd ../../../custom_services/apigateway
           docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-apigateway:$IMAGE_TAG .
           docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-apigateway:$IMAGE_TAG
-          echo "Successfully build the docker image for apigateway and pushed to aws ecr"
+          echo "Successfully build the docker image for apigateway and pushed to aws ecr."
 
           
       
