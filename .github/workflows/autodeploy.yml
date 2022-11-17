@@ -149,35 +149,7 @@ jobs:
           aws ecr create-repository --repository-name securitymanager1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region us-east-1
           
           
-  Build_and_upload_docker_images_to_ECR:
-    
-    runs-on: self-hosted
-    steps:
-      
-      
-      - name: Build, tag, and push image to Amazon ECR
-        env:
-          ECR_REGISTRY: ${{  steps.login-ecr.outputs.registry  }}
-          IMAGE_TAG: latest
-        run: |
-     
-          cd application/services/default_services/authproxy
-          docker build -t $ECR_REGISTRY/authproxy1:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/authproxy1:$IMAGE_TAG
-          echo "Successfully build the docker image for authproxy  and pushed to aws ecr"
-
-          cd ../securitymanager
-          docker build -t $ECR_REGISTRY/securitymanager1:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/securitymanager1:$IMAGE_TAG
-          echo "Successfully build the  docker image for securitymanager and pushed to aws ecr"
-
-          
-
-          cd ../../../custom_services/apigateway
-          docker build -t $ECR_REGISTRY/apigateway1:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/apigateway1:$IMAGE_TAG
-          echo "Successfully build the docker image for apigateway and pushed to aws ecr."
-
+  
           
       
       # Runs a set of commands using the runners shell
