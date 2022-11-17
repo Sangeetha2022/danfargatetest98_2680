@@ -160,10 +160,7 @@ jobs:
           docker push $ECR_REGISTRY/authproxy1:$IMAGE_TAG
           echo "Successfully build the docker image for authproxy  and pushed to aws ecr."
           
-	        cd ../../../custom_services/apigateway
-          docker build -t $ECR_REGISTRY/authproxy1:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/authproxy1:$IMAGE_TAG
-          echo "Successfully build the docker image for authproxy  and pushed to aws ecr." 
+	
   
           
       
