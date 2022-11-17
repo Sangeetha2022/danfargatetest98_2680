@@ -142,11 +142,11 @@ jobs:
           done <<< "$FILE_DIFF"  
       - name: Creating the aws ECR for each micro service
         run: |
-          aws ecr create-repository --repository-name geppetto-generatedcode-healthmonkstart17-5523-apigateway --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region us-east-1
+          aws ecr create-repository --repository-name apigateway1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region us-east-1
           
-          aws ecr create-repository --repository-name geppetto-generatedcode-healthmonkstart17-5523-authproxy --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region us-east-1
+          aws ecr create-repository --repository-name authproxy1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region us-east-1
           
-          aws ecr create-repository --repository-name geppetto-generatedcode-healthmonkstart17-5523-securitymanager --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region us-east-1
+          aws ecr create-repository --repository-name securitymanager1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region us-east-1
           
           
   Build_and_upload_docker_images_to_ECR:
@@ -162,20 +162,20 @@ jobs:
         run: |
      
           cd application/services/default_services/authproxy
-          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-authproxy:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-authproxy:$IMAGE_TAG
+          docker build -t $ECR_REGISTRY/authproxy1:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/authproxy1:$IMAGE_TAG
           echo "Successfully build the docker image for authproxy  and pushed to aws ecr"
 
           cd ../securitymanager
-          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-securitymanager:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-securitymanager:$IMAGE_TAG
+          docker build -t $ECR_REGISTRY/securitymanager1:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/securitymanager1:$IMAGE_TAG
           echo "Successfully build the  docker image for securitymanager and pushed to aws ecr"
 
           
 
           cd ../../../custom_services/apigateway
-          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-apigateway:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-apigateway:$IMAGE_TAG
+          docker build -t $ECR_REGISTRY/apigateway1:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/apigateway1:$IMAGE_TAG
           echo "Successfully build the docker image for apigateway and pushed to aws ecr."
 
           
