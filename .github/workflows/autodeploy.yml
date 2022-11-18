@@ -154,7 +154,8 @@ jobs:
         
         run: |     
           cd application/services/default_services/authproxy
-          docker build -t authproxy1/authproxy1:latest .
+          docker build -t authproxy1 .
+          docker tag authproxy1:latest 967636366309.dkr.ecr.us-east-1.amazonaws.com/authproxy1:latest
           docker push 967636366309.dkr.ecr.us-east-1.amazonaws.com/authproxy1:latest
           echo "Successfully built the docker image for authproxy  and pushed to aws ecr"
            
