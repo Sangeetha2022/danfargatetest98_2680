@@ -143,25 +143,7 @@ jobs:
           
           aws ecr create-repository --repository-name authproxy1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region us-east-1
           
-  Build_and_upload_docker_images_to_ECR:    
-    runs-on: self-hosted
-    steps:    
-      
-      - name: Build, tag, and push image to Amazon ECR
-        
-        run: |     
-          cd application/services/default_services/authproxy
-          docker build -t authproxy1 .
-          docker tag authproxy1:latest 967636366309.dkr.ecr.us-east-1.amazonaws.com/authproxy1:latest
-          docker push 967636366309.dkr.ecr.us-east-1.amazonaws.com/authproxy1:latest
-          echo "Successfully built the docker image for authproxy  and pushed to aws ecr." 
-          
-          cd ../gepfilemanager
-          docker build -t gepfilemanager1 .
-          docker tag authproxy1:latest 967636366309.dkr.ecr.us-east-1.amazonaws.com/gepfilemanager1:latest
-          docker push 967636366309.dkr.ecr.us-east-1.amazonaws.com/gepfilemanager1:latest
-          echo "Successfully built the docker image for gepfilemanager1  and pushed to aws ecr" 
-               
+  
           
            
       
