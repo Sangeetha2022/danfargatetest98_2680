@@ -12,7 +12,10 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
+env:
+  AWS_ACCESS_KEY_ID: ${{  secrets.AWS_ACCESS_KEY_ID  }}
+  AWS_SECRET_ACCESS_KEY: ${{  secrets.AWS_SECRET_ACCESS_KEY  }}
+  AWS_REGION: ${{  secrets.AWS_REGION  }}
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -136,9 +139,9 @@ jobs:
           done <<< "$FILE_DIFF"  
       - name: Creating the aws ECR for each micro service
         run: |
-          aws ecr create-repository --repository-name gepfilemanager1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region us-east-1
+          aws ecr create-repository --repository-name gepfilemanager1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region ${{  secrets.AWS_REGION  }}
           
-          aws ecr create-repository --repository-name authproxy1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region us-east-1
+          aws ecr create-repository --repository-name authproxy1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region ${{  secrets.AWS_REGION  }}
           
   Build_and_upload_docker_images_to_ECR:    
     runs-on: self-hosted
@@ -178,7 +181,7 @@ jobs:
 
       - name: Deploying ECS task definition with Service
         run: |
-          aws ecs update-service --cluster Cost-Estimation-Testing --service healthmonktest --desired-count 1 --force-new-deployment --region us-east-1          
+          aws ecs update-service --cluster Cost-Estimation-Testing --service healthmonktest --desired-count 1 --force-new-deployment --region ${{  secrets.AWS_REGION  }}          
                     
                
    # Runs a set of commands using the runners shell
