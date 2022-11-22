@@ -1,58 +1,41 @@
-name: auto-deploy
+# This is a basic workflow to help you get started with Actions
+
+name: autodeploy
+
+# Controls when the workflow will run
 on:
+  # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: 
-      - autodeploy
+    branches: [ autodeploy ]
   pull_request:
-    branches: 
-      - autodeploy
+    branches: [ autodeploy ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 env:
-  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-  AWS_ROLE_FOR_FARGATE: ${{  secrets.AWS_ROLE_FOR_FARGATE  }}
   AWS_ACCESS_KEY_ID: ${{  secrets.AWS_ACCESS_KEY_ID  }}
   AWS_SECRET_ACCESS_KEY: ${{  secrets.AWS_SECRET_ACCESS_KEY  }}
   AWS_REGION: ${{  secrets.AWS_REGION  }}
-  AWS_VPC_SUBNET: ${{  secrets.AWS_VPC_SUBNET  }}
-  AWS_VPC_SECURITY_GROUP: ${{  secrets.AWS_VPC_SECURITY_GROUP  }}
-  AWS_ECS_CLUSTER_NAME: ${{  secrets.AWS_ECS_CLUSTER_NAME  }}
-  SERVICE_DISCOVERY_NAMESPACE: ${{  secrets.SERVICE_DISCOVERY_NAME  }}
-  PROJECT_NAME: healthmonkstart17-5523
-  AWS_S3_BUCKET_NAME: healthmonkstart17-5523.geppetto.link
-  
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  validation:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
     runs-on: self-hosted
     outputs:
         configuration: ${{ steps.branch-commit.outputs.configuration }}
-        branch: ${{ steps.ecs.outputs.short_ref }}
+        branch: ${{ steps.ec2.outputs.short_ref }}
         instance: ${{ steps.branch-commit.outputs.instance }}
         hosts: ${{ steps.branch-commit.outputs.hosts }}
         bucket: ${{ steps.branch-commit.outputs.bucket }}
-        instance_data_value: ${{ steps.ecs.outputs.ECS_DEV }} 
+        instance_data_value: ${{ steps.ec2.outputs.INSTANCE_DEV }} 
         run_frontend_jobs: ${{ steps.frontend.outputs.ui}}
         run_backend_jobs: ${{ steps.Backend.outputs.backend }}
         microservices: ${{ steps.microservice.outputs.microservices }}
-        container : ${{ steps.microservice.outputs.apigateway }} 
-                    ${{ steps.microservice.outputs.authproxy }}
-                    ${{ steps.microservice.outputs.systemcredentialmanager }}
-                    ${{ steps.microservice.outputs.gcam }} 
-                    ${{ steps.microservice.outputs.gepfilemanager }}
-                    ${{ steps.microservice.outputs.securitymanager }} 
-                    ${{ steps.microservice.outputs.systementry }} 
-                    ${{ steps.microservice.outputs.personmanager }}
-                    ${{ steps.microservice.outputs.adminmanager }}
-                    ${{ steps.microservice.outputs.fluentd }}
-                    ${{ steps.microservice.outputs.mongo }}                     
-                    ${{ steps.microservice.outputs.vault }}   
-                    ${{ steps.microservice.outputs.gepitemtagsmanager }}
-                    ${{ steps.microservice.outputs.homedatamanager }} 
-                    ${{ steps.microservice.outputs.mealsmanager }}
-                    ${{ steps.microservice.outputs.physicaladdressmanager }}
-                    ${{ steps.microservice.outputs.dishmanager }}
-                    ${{ steps.microservice.outputs.foodmanager }} 
-                    ${{ steps.microservice.outputs.medicationmanager }}
-                    ${{ steps.microservice.outputs.prescriptionmanager }} 
-                    
+        container : 
+                ${{ steps.microservice.outputs.gepfilemanager }} 
+                
+                ${{ steps.microservice.outputs.authproxy }}
     steps:
     - name: Check the  branch
       uses: actions/checkout@v2
@@ -109,9 +92,9 @@ jobs:
       if: ${{ steps.branch-commit.outputs.instance }} == '"running"'
       id: Backend
       run: |
-        FILE_DIFF="${{ steps.diff.outputs.diff }}"
-        while read path;
-        do
+          FILE_DIFF="${{ steps.diff.outputs.diff }}"
+          while read path;
+          do
           directory="$( echo $path )"
           if [[ $directory != application/services/* && $directory != generator/services/*  ]]; then
             echo "::set-output name=backend::notcommited" 
@@ -120,282 +103,76 @@ jobs:
             echo "::set-output name=backend::commited"
             break
           fi
-        done <<< "$FILE_DIFF"
+          done <<< "$FILE_DIFF"
     - name: Microservices to check run
       if: steps.Backend.outputs.backend == 'commited'
       id: microservice
       run: |
-        FILE_DIFF="${{ steps.diff.outputs.diff }}"
-        while read path;
-        do
+          FILE_DIFF="${{ steps.diff.outputs.diff }}"
+          while read path;
+          do
           directory="$( echo $path )"
-        if [[ $directory == application/services/custom_services/apigateway/* ]]; then
-          echo "::set-output name=microservices::commited" 
-          echo "::set-output name=apigateway::apigateway"
-          continue
-        elif [[ $directory == application/services/default_services/authproxy/* ]]; then
-          echo "::set-output name=microservices::commited"
-          echo "::set-output name=authproxy::authproxy" 
-          continue
-        elif [[ $directory == application/services/custom_services/foodmanager/* ]]; then
-          echo "::set-output name=microservices::commited"
-          echo "::set-output name=foodmanager::foodmanager" 
-          continue
-        elif [[ $directory == application/services/custom_services/dishmanager/* ]]; then
-          echo "::set-output name=microservices::commited"
-          echo "::set-output name=dishmanager::dishmanager" 
-          continue
-        elif [[ $directory == application/services/custom_services/gepitemtagsmanager/* ]]; then
-          echo "::set-output name=microservices::commited"
-          echo "::set-output name=gepitemtagsmanager::gepitemtagsmanager" 
-          continue
-       
-       
-        elif [[ $directory == application/services/custom_services/homedatamanager/* ]]; then
-          echo "::set-output name=microservices::commited"
-          echo "::set-output name=homedatamanager::homedatamanager" 
-          continue
-        elif [[ $directory == application/services/custom_services/mealsmanager/* ]]; then
-          echo "::set-output name=microservices::commited"
-          echo "::set-output name=mealsmanager::mealsmanager" 
-          continue
-       
+          if [[ $directory == application/services/gepfilemanager/* ]]; then
+            echo "::set-output name=microservices::commited" 
+            echo "::set-output name=gepfilemanager::gepfilemanager"
+            continue   
+          elif [[ $directory == application/services/authproxy/* ]]; then
+            echo "::set-output name=microservices::commited" 
+            echo "::set-output name=Authproxy::authproxy"
+            continue     
           
-        elif [[ $directory == application/services/custom_services/personmanager/* ]]; then
-          echo "::set-output name=microservices::commited"
-          echo "::set-output name=personmanager::personmanager" 
-          continue
-        elif [[ $directory == application/services/custom_services/physicaladdressmanager/* ]]; then
-          echo "::set-output name=microservices::commited"
-          echo "::set-output name=physicaladdressmanager::physicaladdressmanager" 
-          continue
-        elif [[ $directory == application/services/custom_services/prescriptionmanager/* ]]; then
-          echo "::set-output name=microservices::commited"
-          echo "::set-output name=prescriptionmanager::prescriptionmanager" 
-          continue
-        elif [[ $directory == application/services/custom_services/medicationmanager/* ]]; then
-          echo "::set-output name=microservices::commited"
-          echo "::set-output name=medicationmanager::medicationmanager" 
-          continue
-        elif [[ $directory == application/services/custom_services/systementry/* ]]; then
-          echo "::set-output name=microservices::commited"
-          echo "::set-output name=systementry::systementry" 
-          continue
-        elif [[ $directory == application/services/default_services/fluentd/* ]]; then
-          echo "::set-output name=microservices::commited"
-          echo "::set-output name=fluentd::fluentd" 
-          continue
-        elif [[ $directory == application/services/default_services/gcam/* ]]; then
-          echo "::set-output name=microservices::commited"
-          echo "::set-output name=gcam::gcam" 
-          continue
-        elif [[ $directory == application/services/default_services/gepfilemanager/* ]]; then
-          echo "::set-output name=microservices::commited"
-          echo "::set-output name=gepfilemanager::gepfilemanager" 
-          continue
-        elif [[ $directory == application/services/default_services/securitymanager/* ]]; then
-          echo "::set-output name=microservices::commited"
-          echo "::set-output name=securitymanager::securitymanager" 
-          continue
-        elif [[ $directory == application/services/default_services/systemcredentialmanager/* ]]; then
-          echo "::set-output name=microservices::commited"
-          echo "::set-output name=systemcredentialmanager::systemcredentialmanager" 
-          continue
-        elif [[ $directory == application/services/adminmanager/* ]]; then
-          echo "::set-output name=microservices::commited"
-          echo "::set-output name=adminmanager::adminmanager" 
-          continue
-        else
-          echo "::set-output name=microservices::notcommited"
-        fi
-        done <<< "$FILE_DIFF"
-        
-  Build_and_upload_docker_images_to_ECR:
-   
-    runs-on: ubuntu-latest
-    steps:
-      - name: Configure the aws cli
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{  env.AWS_ACCESS_KEY_ID  }}
-          aws-secret-access-key: ${{  env.AWS_SECRET_ACCESS_KEY  }}
-          aws-region: ${{  env.AWS_REGION  }}
-      - name: Checkout_Repo
-        uses: actions/checkout@v2
-      - name: Login to AWS ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+            echo "::set-output name=microservices::notcommited"
+          fi
+          done <<< "$FILE_DIFF"  
+    - name: Creating the aws ECR for each micro service
+      run: |
+          aws ecr create-repository --repository-name gepfilemanager1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region ${{  secrets.AWS_REGION  }}
+          
+          aws ecr create-repository --repository-name authproxy1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region ${{  secrets.AWS_REGION  }}
+          
+  Build_and_upload_docker_images_to_ECR:    
+    runs-on: self-hosted
+    steps:    
+      
       - name: Build, tag, and push image to Amazon ECR
-        env:
-          ECR_REGISTRY: ${{  steps.login-ecr.outputs.registry  }}
-          IMAGE_TAG: latest
-        run: | 
-         cd application/services/default_services/authproxy
-          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-authproxy:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-authproxy:$IMAGE_TAG
-          echo "Successfully build the docker image for authproxy  and pushed to aws ecr"
-
-          cd ../securitymanager
-          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-securitymanager:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-securitymanager:$IMAGE_TAG
-          echo "Successfully build the  docker image for securitymanager and pushed to aws ecr"
-
-          cd ../systemcredentialmanager
-          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-systemcredentialmanager:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-systemcredentialmanager:$IMAGE_TAG
-          echo "Successfully build the  docker image for systemcredentialmanager and pushed to aws ecr"
+        
+        run: |     
+          cd application/services/default_services/authproxy
+          docker build -t authproxy1 .
+          docker tag authproxy1:latest 967636366309.dkr.ecr.us-east-1.amazonaws.com/authproxy1:latest
+          docker push 967636366309.dkr.ecr.us-east-1.amazonaws.com/authproxy1:latest
+          echo "Successfully built the docker image for authproxy  and pushed to aws ecr." 
           
-          cd ../gcam
-          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-gcam:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-gcam:$IMAGE_TAG
-          echo "Successfully build the docker image for gcam  and pushed to aws ecr"
-
           cd ../gepfilemanager
-          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-gepfilemanager:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-gepfilemanager:$IMAGE_TAG
-          echo "Successfully build the  docker image for gepfilemanager and pushed to aws ecr"
-
-          cd ../fluentd/fluend
-          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-fluentd:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-fluentd:$IMAGE_TAG
-          echo "Successfully build the  docker image for fluentd and pushed to aws ecr"
-
-          cd ../../../custom_services/apigateway
-          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-apigateway:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-apigateway:$IMAGE_TAG
-          echo "Successfully build the docker image for apigateway and pushed to aws ecr"
-
-          cd ../systementry
-          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-systementry:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-systementry:$IMAGE_TAG
-          echo "Successfully build the docker image for systementry and pushed to aws ecr"
+          docker build -t gepfilemanager1 .
+          docker tag gepfilemanager1:latest 967636366309.dkr.ecr.us-east-1.amazonaws.com/gepfilemanager1:latest
+          docker push 967636366309.dkr.ecr.us-east-1.amazonaws.com/gepfilemanager1:latest
+          echo "Successfully built the docker image for gepfilemanager1  and pushed to aws ecr." 
           
-          cd ../personmanager
-          docker build -t $ECR_REGISTRY/geppetto-healthmonk-personmanager:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-healthmonk-personmanager:$IMAGE_TAG
-          echo "Successfully build the docker image for personmanager and pushed to aws ecr"
-         
-          cd ../dishmanager
-          docker build -t $ECR_REGISTRY/geppetto-healthmonk-dishmanager:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-healthmonk-dishmanager:$IMAGE_TAG
-          echo "Successfully build the docker image for dishmanager and pushed to aws ecr"
-         
-          cd ../foodmanager
-          docker build -t $ECR_REGISTRY/geppetto-healthmonk-foodmanager:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-healthmonk-foodmanager:$IMAGE_TAG
-          echo "Successfully build the docker image for foodmanager and pushed to aws ecr"
-         
-          cd ../gepitemtagsmanager
-          docker build -t $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-gepitemtagsmanager:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-generatedcode-healthmonkstart17-5523-gepitemtagsmanager:$IMAGE_TAG
-          echo "Successfully build the docker image for gepitemtagsmanager and pushed to aws ecr"
-          
-          cd ../homedatamanager
-          docker build -t $ECR_REGISTRY/geppetto-healthmonk-homedatamanager:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-healthmonk-homedatamanager:$IMAGE_TAG
-          echo "Successfully build the docker image for homedatamanager and pushed to aws ecr"
-          
-          cd ../mealsmanager
-          docker build -t $ECR_REGISTRY/geppetto-healthmonk-mealsmanager:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-healthmonk-mealsmanager:$IMAGE_TAG
-          echo "Successfully build the docker image for mealsmanager and pushed to aws ecr"
-          
-          cd ../medicationmanager
-          docker build -t $ECR_REGISTRY/geppetto-healthmonk-medicationmanager:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-healthmonk-medicationmanager:$IMAGE_TAG
-          echo "Successfully build the docker image for medicationmanager and pushed to aws ecr"       
-          
-          
-          cd ../physicaladdressmanager
-          docker build -t $ECR_REGISTRY/geppetto-healthmonk-physicaladdressmanager:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-healthmonk-physicaladdressmanager:$IMAGE_TAG
-          echo "Successfully build the docker image for physicaladdressmanager and pushed to aws ecr"
-          
-          cd ../prescriptionmanager
-          docker build -t $ECR_REGISTRY/geppetto-healthmonk-prescriptionmanager:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/geppetto-healthmonk-prescriptionmanager:$IMAGE_TAG
-          echo "Successfully build the docker image for prescriptionmanager and pushed to aws ecr"
-         
-          
-          
-          
-          
-         
- #------------- Amazon ECS task definition6 ----------------#  
+#------------- Amazon ECS task definition1 ----------------#  
       - name: Render Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-         task-definition: .github/workflows/healthmonkstart17.json
-         container-name: apigateway-5523
-         image: 967636366309.dkr.ecr.us-east-1.amazonaws.com/geppetto-generatedcode-healthmonkstart17-5523-apigateway:latest
+         task-definition: .github/workflows/healthmonktest.json
+         container-name: authproxy
+         image: 967636366309.dkr.ecr.us-east-1.amazonaws.com/authproxy1:latest
 
       - name: Deploy to Amazon ECS service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-         task-definition: .github/workflows/healthmonkstart17.json
-         service: healthmonkstart17
-         cluster: ${{  env.AWS_ECS_CLUSTER_NAME  }} 
+         task-definition: .github/workflows/healthmonktest.json
+         service: healthmonktest
+         cluster: Cost-Estimation-Testing 
 
 
       - name: Deploying ECS task definition with Service
         run: |
-          aws ecs update-service --cluster ${{  env.AWS_ECS_CLUSTER_NAME  }} --service healthmonkstart17 --desired-count 1 --force-new-deployment --region ${{  env.AWS_REGION  }}          
-          
- #------------- Amazon ECS task definition6 ----------------#  
-      - name: Render Amazon ECS task definition
-        id: task-def1
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-         task-definition: .github/workflows/healthmonkstart170.json
-         container-name: personmanager-5523
-         image: 967636366309.dkr.ecr.us-east-1.amazonaws.com/geppetto-healthmonk-personmanager:latest
-
-      - name: Deploy to Amazon ECS service
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-         task-definition: .github/workflows/healthmonkstart170.json
-         service: healthmonkstart170
-         cluster: ${{  env.AWS_ECS_CLUSTER_NAME  }} 
-
-
-      - name: Deploying ECS task definition with Service
+          aws ecs update-service --cluster Cost-Estimation-Testing --service healthmonktest --desired-count 1 --force-new-deployment --region ${{  secrets.AWS_REGION  }}          
+                    
+               
+   # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
         run: |
-          aws ecs update-service --cluster ${{  env.AWS_ECS_CLUSTER_NAME  }} --service healthmonkstart170 --desired-count 1 --force-new-deployment --region ${{  env.AWS_REGION  }} 
-    
-    
-     
-    
-         
-#------------- Upload to S3 -----------------#           
-  Upload_S3_Bucket:
-     runs-on: ubuntu-latest
-     needs: validation
-     
-     steps:
-      - name: Setup repo
-        uses: actions/checkout@v2
-      - name: Install the node
-        uses: actions/setup-node@v1
-        with:
-          node-version: 14.17  
-      - name: Installing angular/cli
-        run: npm install -g @angular/cli
-      - name: Installing the node modules
-        working-directory: ./application/client/web/healthmonkstart17
-        run: |
-          npm install
-          
-      - name: Production build
-        working-directory: ./application/client/web/healthmonkstart17
-        run: ng build
-      - uses: jakejarvis/s3-sync-action@v0.5.1
-        with:
-          args: --acl public-read --delete
-        env:
-          AWS_S3_BUCKET: ${{  env.AWS_S3_BUCKET  }}
-          AWS_ACCESS_KEY_ID: ${{  env.AWS_ACCESS_KEY_ID  }}
-          AWS_SECRET_ACCESS_KEY: ${{  env.AWS_SECRET_ACCESS_KEY  }}
-          AWS_REGION: ${{  env.AWS_REGION  }}
-          SOURCE_DIR: "application/client/web/healthmonkstart17/dist/healthmonkstart17"       
-          
+          echo Add other actions to build,
+          echo test, and deploy your project.
