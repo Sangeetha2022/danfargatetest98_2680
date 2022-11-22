@@ -168,8 +168,8 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
          task-definition: .github/workflows/healthmonktest.json
-         container-name: gepfilemanager
-         image: 967636366309.dkr.ecr.us-east-1.amazonaws.com/gepfilemanager1:latest
+         container-name: authproxy
+         image: 967636366309.dkr.ecr.us-east-1.amazonaws.com/authproxy1:latest
 
       - name: Deploy to Amazon ECS service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
