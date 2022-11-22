@@ -30,11 +30,11 @@ jobs:
         run_backend_jobs: ${{ steps.Backend.outputs.backend }}
         microservices: ${{ steps.microservice.outputs.microservices }}
         container : 
-                ${{ steps.microservice.outputs.securitymanager }} 
+                ${{ steps.microservice.outputs.gepfilemanager }} 
                 
                 ${{ steps.microservice.outputs.authproxy }}
                 
-                ${{ steps.microservice.outputs.apigateway }} 
+              
                 
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -122,18 +122,15 @@ jobs:
           while read path;
           do
           directory="$( echo $path )"
-          if [[ $directory == application/services/securitymanager/* ]]; then
+          if [[ $directory == application/services/gepfilemanager/* ]]; then
             echo "::set-output name=microservices::commited" 
-            echo "::set-output name=securitymanager::securitymanager"
+            echo "::set-output name=gepfilemanager::gepfilemanager"
             continue   
-          elif [[ $directory == application/services/Auth-Proxy/* ]]; then
+          elif [[ $directory == application/services/authproxy/* ]]; then
             echo "::set-output name=microservices::commited" 
             echo "::set-output name=Authproxy::authproxy"
             continue     
-          elif [[ $directory == application/services/apigateway/* ]]; then
-            echo "::set-output name=microservices::commited"
-            echo "::set-output name=apigateway::apigateway" 
-            continue
+          
         
      
           
@@ -142,7 +139,7 @@ jobs:
           done <<< "$FILE_DIFF"  
       - name: Creating the aws ECR for each micro service
         run: |
-          aws ecr create-repository --repository-name apigateway1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region us-east-1
+          aws ecr create-repository --repository-name gepfilemanager1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region us-east-1
           
           aws ecr create-repository --repository-name authproxy1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region us-east-1
           
@@ -159,11 +156,11 @@ jobs:
           docker push 967636366309.dkr.ecr.us-east-1.amazonaws.com/authproxy1:latest
           echo "Successfully built the docker image for authproxy  and pushed to aws ecr." 
           
-          cd application/services/custom_services/apigateway
-          docker build -t apigateway1 .
-          docker tag apigateway1:latest 967636366309.dkr.ecr.us-east-1.amazonaws.com/apigateway1:latest
-          docker push 967636366309.dkr.ecr.us-east-1.amazonaws.com/apigateway1:latest
-          echo "Successfully built the docker image for apigateway  and pushed to aws ecr." 
+          cd ../gepfilemanager
+          docker build -t gepfilemanager1 .
+          docker tag authproxy1:latest 967636366309.dkr.ecr.us-east-1.amazonaws.com/gepfilemanager1:latest
+          docker push 967636366309.dkr.ecr.us-east-1.amazonaws.com/gepfilemanager1:latest
+          echo "Successfully built the docker image for gepfilemanager1  and pushed to aws ecr." 
                
           
            
