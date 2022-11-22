@@ -159,7 +159,7 @@ jobs:
           docker push 967636366309.dkr.ecr.us-east-1.amazonaws.com/authproxy1:latest
           echo "Successfully built the docker image for authproxy  and pushed to aws ecr." 
           
-          cd ../application/services/custom_services/apigateway
+          cd application/services/custom_services/apigateway
           docker build -t apigateway1 .
           docker tag apigateway1:latest 967636366309.dkr.ecr.us-east-1.amazonaws.com/apigateway1:latest
           docker push 967636366309.dkr.ecr.us-east-1.amazonaws.com/apigateway1:latest
