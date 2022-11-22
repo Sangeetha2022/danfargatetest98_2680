@@ -36,75 +36,62 @@ jobs:
                 ${{ steps.microservice.outputs.gepfilemanager }} 
                 
                 ${{ steps.microservice.outputs.authproxy }}
-                
-              
-                
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+    - name: Check the  branch
+      uses: actions/checkout@v2
+    - name: Configure the aws cli
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    - name: branch check dev and stage
+      id: branch-commit
+      run: |
+        if [ ${{steps.ecs.outputs.short_ref}} == 'dev' ]; then
+        echo "::set-output name=instance::${{ steps.ec2.outputs.ECS_DEV }}" 
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world! hi San
-      - name: Instance State
-        id: ec2
-        run: |
-          echo "::set-output name=INSTANCE_DEV::$(aws ec2 describe-instances --instance-ids i-082c02e8aa3853a62 | jq '.Reservations[].Instances[].State.Name')"
-          echo "::set-output name=INSTANCE_STAGE::$(aws ec2 describe-instances --instance-ids i-09c99dd87883bc185 | jq '.Reservations[].Instances[].State.Name')"
-          echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
-      - name: branch check dev and stage
-        id: branch-commit
-        run: |
-          if [ ${{steps.ec2.outputs.short_ref}} == 'dev' ]; then
-          echo "::set-output name=instance::${{ steps.ec2.outputs.INSTANCE_DEV }}" 
-          echo "::set-output name=hosts::ubuntu@ec2-34-197-46-177.compute-1.amazonaws.com"
-          echo "::set-output name=bucket::geppetto-dev"
-          echo "::set-output name=configuration::devops"
-          elif [ ${{steps.ec2.outputs.short_ref}} == 'stage' ]; then
-          echo "::set-output name=instance::${{steps.ec2.outputs.INSTANCE_STAGE}}" 
-          echo "::set-output name=hosts::ubuntu@ec2-34-199-109-78.compute-1.amazonaws.com"
-          echo "::set-output name=bucket::geppetto-stage"
-          echo "::set-output name=configuration::production" 
-          fi
-      - name:  Status of Instance 
-        run: |
-          echo ${{steps.ec2.outputs.short_ref}} "is" ${{ steps.branch-commit.outputs.instance }}
-      - uses: actions/checkout@v2
-      - name: Check for changes
-        id: diff
-        run: |
-          if [ $GITHUB_BASE_REF ]; then
-          git fetch origin $GITHUB_BASE_REF --depth=1
-          export FILE_DIFF=$( git diff --name-only origin/$GITHUB_BASE_REF $GITHUB_SHA )
-          echo "Diff between origin/$GITHUB_BASE_REF and $GITHUB_SHA"
-          else
-          git fetch origin ${{ github.event.before }} --depth=1
-          export FILE_DIFF=$( git diff --name-only ${{ github.event.before }} $GITHUB_SHA )
-          echo "Diff between ${{ github.event.before }} and $GITHUB_SHA"
-          fi
-          echo "$FILE_DIFF"
-          echo "::set-output name=diff::$( echo "$FILE_DIFF" | sed ':a;N;$!ba;s/\n/%0A/g' )"
-      - name: UI to build function
-        id: frontend
-        run: |
-          FILE_DIFF="${{ steps.diff.outputs.diff }}"
-          while read path;
-          do
-          directory="$( echo $path )"
-          if [[ $directory != application/clients/desktop/* ]]; then
-            echo "::set-output name=ui::notcommited" 
-            continue
-          else
-            echo "::set-output name=ui::commited"
-            break
-          fi
-          done <<< "$FILE_DIFF"
-      - name: Backend function to build
-        if: ${{ steps.branch-commit.outputs.instance }} == '"running"'
-        id: Backend
-        run: |
+        elif [ ${{steps.ecs.outputs.short_ref}} == 'stage' ]; then
+        echo "::set-output name=instance::${{steps.ec2.outputs.ECS_STAGE}}" 
+
+        fi  
+    - name:  Status of Instance 
+      run: |
+        echo ${{steps.ecs.outputs.short_ref}} "is" ${{ steps.branch-commit.outputs.instance }}
+    - uses: actions/checkout@v3
+    - name: Check for changes
+      id: diff
+      run: |
+        if [ $GITHUB_BASE_REF ]; then
+        git fetch origin $GITHUB_BASE_REF --depth=1
+        export FILE_DIFF=$( git diff --name-only origin/$GITHUB_BASE_REF $GITHUB_SHA )
+        echo "Diff between origin/$GITHUB_BASE_REF and $GITHUB_SHA"
+        else
+        git fetch origin ${{ github.event.before }} --depth=1
+        export FILE_DIFF=$( git diff --name-only ${{ github.event.before }} $GITHUB_SHA )
+        echo "Diff between ${{ github.event.before }} and $GITHUB_SHA"
+        fi
+        echo "$FILE_DIFF"
+        echo "::set-output name=diff::$( echo "$FILE_DIFF" | sed ':a;N;$!ba;s/\n/%0A/g' )"
+    - name: UI to build function
+      id: frontend
+      run: |
+        FILE_DIFF="${{ steps.diff.outputs.diff }}"
+        while read path;
+        do
+        directory="$( echo $path )"
+        if [[ $directory != application/clients/desktop/* ]]; then
+          echo "::set-output name=ui::notcommited" 
+          continue
+        else
+          echo "::set-output name=ui::commited"
+          break
+        fi
+        done <<< "$FILE_DIFF"
+    - name: Backend function to build
+      if: ${{ steps.branch-commit.outputs.instance }} == '"running"'
+      id: Backend
+      run: |
           FILE_DIFF="${{ steps.diff.outputs.diff }}"
           while read path;
           do
@@ -117,10 +104,10 @@ jobs:
             break
           fi
           done <<< "$FILE_DIFF"
-      - name: Microservices to check run
-        if: steps.Backend.outputs.backend == 'commited'
-        id: microservice
-        run: |
+    - name: Microservices to check run
+      if: steps.Backend.outputs.backend == 'commited'
+      id: microservice
+      run: |
           FILE_DIFF="${{ steps.diff.outputs.diff }}"
           while read path;
           do
@@ -137,8 +124,8 @@ jobs:
             echo "::set-output name=microservices::notcommited"
           fi
           done <<< "$FILE_DIFF"  
-      - name: Creating the aws ECR for each micro service
-        run: |
+    - name: Creating the aws ECR for each micro service
+      run: |
           aws ecr create-repository --repository-name gepfilemanager1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region ${{  secrets.AWS_REGION  }}
           
           aws ecr create-repository --repository-name authproxy1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region ${{  secrets.AWS_REGION  }}
