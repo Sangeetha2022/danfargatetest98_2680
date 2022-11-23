@@ -1,4 +1,4 @@
-FROM node:14.11.0-alpine
+FROM  node:14.11.0-alpine
 COPY . /gepfilemanager
 WORKDIR /gepfilemanager
 RUN npm install
