@@ -149,27 +149,7 @@ jobs:
           docker push 967636366309.dkr.ecr.us-east-1.amazonaws.com/gepfilemanager1:latest
           echo "Successfully built the docker image for gepfilemanager1  and pushed to aws ecr." 
           
-#------------- Amazon ECS task definition1 ----------------#  
-      - name: Render Amazon ECS task definition
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-         task-definition: .github/workflows/healthmonktest.json
-         container-name: authproxy
-         image: 967636366309.dkr.ecr.us-east-1.amazonaws.com/authproxy1:latest
-
-      - name: Deploy to Amazon ECS service
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-         task-definition: .github/workflows/healthmonktest.json
-         service: healthmonktest
-         cluster: Cost-Estimation-Testing 
-
-
-      - name: Deploying ECS task definition with Service
-        run: |
-          aws ecs update-service --cluster Cost-Estimation-Testing --service healthmonktest --desired-count 1 --force-new-deployment --region ${{  secrets.AWS_REGION  }}          
-                    
+                 
                
    # Runs a set of commands using the runners shell
       - name: Run a multi-line script
