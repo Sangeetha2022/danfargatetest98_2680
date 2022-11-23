@@ -39,8 +39,8 @@ jobs:
     steps:
     - name: Check the  branch
       uses: actions/checkout@v2
-    - name: Configure the aws cli
-      uses: aws-actions/configure-aws-credentials@v1
+#     - name: Configure the aws cli
+#       uses: aws-actions/configure-aws-credentials@v1
 #       with:
 #         aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
 #         aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
