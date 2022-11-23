@@ -126,9 +126,9 @@ jobs:
           done <<< "$FILE_DIFF"  
     - name: Creating the aws ECR for each micro service
       run: |
-          aws ecr create-repository --repository-name gepfilemanager1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region ${{  secrets.AWS_REGION  }}
+          aws ecr create-repository --repository-name gepfilemanager1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region ${{  secrets.AWS_REGION  }}  || true
           
-          aws ecr create-repository --repository-name authproxy1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region ${{  secrets.AWS_REGION  }}
+          aws ecr create-repository --repository-name authproxy1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region ${{  secrets.AWS_REGION  }}  || true
           
   Build_and_upload_docker_images_to_ECR:    
     runs-on: self-hosted
