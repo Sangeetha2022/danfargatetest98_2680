@@ -140,13 +140,13 @@ jobs:
           cd application/services/default_services/authproxy
           docker build -t authproxy1 .
           docker tag authproxy1:latest
-          docker push authproxy1:latest
+          
           echo "Successfully built the docker image for authproxy1  and pushed to aws ecr." 
           
           cd ../gepfilemanager
           docker build -t gepfilemanager1 .
           docker tag gepfilemanager1:latest 
-          docker push gepfilemanager1:latest
+          
           echo "Successfully built the docker image for gepfilemanager1  and pushed to aws ecr." 
           
                  
