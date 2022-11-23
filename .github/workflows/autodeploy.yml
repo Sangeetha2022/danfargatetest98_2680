@@ -12,10 +12,10 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-env:
-  AWS_ACCESS_KEY_ID: ${{  secrets.AWS_ACCESS_KEY_ID  }}
-  AWS_SECRET_ACCESS_KEY: ${{  secrets.AWS_SECRET_ACCESS_KEY  }}
-  AWS_REGION: ${{  secrets.AWS_REGION  }}
+# env:
+#   AWS_ACCESS_KEY_ID: ${{  secrets.AWS_ACCESS_KEY_ID  }}
+#   AWS_SECRET_ACCESS_KEY: ${{  secrets.AWS_SECRET_ACCESS_KEY  }}
+#   AWS_REGION: ${{  secrets.AWS_REGION  }}
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -41,10 +41,10 @@ jobs:
       uses: actions/checkout@v2
     - name: Configure the aws cli
       uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
+#       with:
+#         aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+#         aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+#         aws-region: ${{ env.AWS_REGION }}
     - name: branch check dev and stage
       id: branch-commit
       run: |
@@ -124,11 +124,11 @@ jobs:
             echo "::set-output name=microservices::notcommited"
           fi
           done <<< "$FILE_DIFF"  
-    - name: Creating the aws ECR for each micro service
-      run: |
-          aws ecr create-repository --repository-name gepfilemanager1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region ${{  secrets.AWS_REGION  }}  || true
+#     - name: Creating the aws ECR for each micro service
+#       run: |
+#           aws ecr create-repository --repository-name gepfilemanager1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region ${{  secrets.AWS_REGION  }}  || true
           
-          aws ecr create-repository --repository-name authproxy1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region ${{  secrets.AWS_REGION  }}  || true
+#           aws ecr create-repository --repository-name authproxy1 --tags Key=project_name,Value=${{ env.PROJECT_NAME }} Key=name,Value=${{ env.PROJECT_NAME }} --region ${{  secrets.AWS_REGION  }}  || true
           
   Build_and_upload_docker_images_to_ECR:    
     runs-on: self-hosted
@@ -139,14 +139,14 @@ jobs:
         run: |     
           cd application/services/default_services/authproxy
           docker build -t authproxy1 .
-          docker tag authproxy1:latest 967636366309.dkr.ecr.us-east-1.amazonaws.com/authproxy1:latest
-          docker push 967636366309.dkr.ecr.us-east-1.amazonaws.com/authproxy1:latest
+          docker tag authproxy1:latest
+          docker push authproxy1:latest
           echo "Successfully built the docker image for authproxy1  and pushed to aws ecr." 
           
           cd ../gepfilemanager
           docker build -t gepfilemanager1 .
-          docker tag gepfilemanager1:latest 967636366309.dkr.ecr.us-east-1.amazonaws.com/gepfilemanager1:latest
-          docker push 967636366309.dkr.ecr.us-east-1.amazonaws.com/gepfilemanager1:latest
+          docker tag gepfilemanager1:latest 
+          docker push gepfilemanager1:latest
           echo "Successfully built the docker image for gepfilemanager1  and pushed to aws ecr." 
           
                  
