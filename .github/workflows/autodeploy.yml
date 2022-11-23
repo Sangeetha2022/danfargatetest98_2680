@@ -147,7 +147,7 @@ jobs:
           docker build -t gepfilemanager1 .
           docker tag gepfilemanager1:latest 967636366309.dkr.ecr.us-east-1.amazonaws.com/gepfilemanager1:latest
           docker push 967636366309.dkr.ecr.us-east-1.amazonaws.com/gepfilemanager1:latest
-          echo "Successfully built the docker image for gepfilemanager1  and pushed to aws ecr" 
+          echo "Successfully built the docker image for gepfilemanager1  and pushed to aws ecr." 
           
                  
                
