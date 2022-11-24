@@ -1,5 +1,5 @@
 FROM node:14.11.0-alpine
-COPY . /gepfilemanager
+COPY ./gepfilemanager
 WORKDIR /gepfilemanager
 RUN npm install
 RUN npm i -g ts-node
