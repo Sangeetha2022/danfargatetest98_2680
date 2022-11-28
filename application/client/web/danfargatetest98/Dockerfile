@@ -9,7 +9,7 @@ RUN npm install -g @angular/cli@13.0.3
 RUN npm install -g serve
 RUN npm install -g concurrently
 RUN npm upgrade -g @angular/cli
-RUN ng build  --output-hashing all
+RUN ng build --output-hashing all
 
 FROM nginx:alpine
 RUN rm -rf /usr/share/nginx/html/* && rm -rf /etc/nginx/nginx.conf
