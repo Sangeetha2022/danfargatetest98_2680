@@ -83,7 +83,7 @@ jobs:
         if [[ $directory != application/clients/desktop/* ]]; then
           echo "::set-output name=ui::notcommited" 
           continue
-        else
+        
           echo "::set-output name=ui::commited"
           break
         fi
