@@ -131,14 +131,82 @@ jobs:
           while read path;
           do
           directory="$( echo $path )"
-          if [[ $directory == application/services/gepfilemanager/* ]]; then
-            echo "::set-output name=microservices::commited" 
-            echo "::set-output name=gepfilemanager::gepfilemanager"
-            continue   
-          elif [[ $directory == application/services/authproxy/* ]]; then
-            echo "::set-output name=microservices::commited" 
-            echo "::set-output name=Authproxy::authproxy"
-            continue     
+          if [[ $directory == application/services/custom_services/apigateway/* ]]; then
+          echo "::set-output name=microservices::commited" 
+          echo "::set-output name=apigateway::apigateway"
+          continue
+        elif [[ $directory == application/services/default_services/authproxy/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=authproxy::authproxy" 
+          continue
+        elif [[ $directory == application/services/custom_services/foodmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=foodmanager::foodmanager" 
+          continue
+        elif [[ $directory == application/services/custom_services/dishmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=dishmanager::dishmanager" 
+          continue
+        elif [[ $directory == application/services/custom_services/gepitemtagsmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=gepitemtagsmanager::gepitemtagsmanager" 
+          continue
+       
+       
+        elif [[ $directory == application/services/custom_services/homedatamanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=homedatamanager::homedatamanager" 
+          continue
+        elif [[ $directory == application/services/custom_services/mealsmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=mealsmanager::mealsmanager" 
+          continue
+       
+          
+        elif [[ $directory == application/services/custom_services/personmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=personmanager::personmanager" 
+          continue
+        elif [[ $directory == application/services/custom_services/physicaladdressmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=physicaladdressmanager::physicaladdressmanager" 
+          continue
+        elif [[ $directory == application/services/custom_services/prescriptionmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=prescriptionmanager::prescriptionmanager" 
+          continue
+        elif [[ $directory == application/services/custom_services/medicationmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=medicationmanager::medicationmanager" 
+          continue
+        elif [[ $directory == application/services/custom_services/systementry/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=systementry::systementry" 
+          continue
+        elif [[ $directory == application/services/default_services/fluentd/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=fluentd::fluentd" 
+          continue
+        elif [[ $directory == application/services/default_services/gcam/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=gcam::gcam" 
+          continue
+        elif [[ $directory == application/services/default_services/gepfilemanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=gepfilemanager::gepfilemanager" 
+          continue
+        elif [[ $directory == application/services/default_services/securitymanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=securitymanager::securitymanager" 
+          continue
+        elif [[ $directory == application/services/default_services/systemcredentialmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=systemcredentialmanager::systemcredentialmanager" 
+          continue
+        elif [[ $directory == application/services/adminmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=adminmanager::adminmanager" 
+          continue   
           
             echo "::set-output name=microservices::notcommited"
           fi
