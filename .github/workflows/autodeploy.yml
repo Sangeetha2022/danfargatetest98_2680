@@ -127,11 +127,11 @@ jobs:
       if: steps.Backend.outputs.backend == 'commited'
       id: microservice
       run: |
-          FILE_DIFF="${{ steps.diff.outputs.diff }}"
-          while read path;
-          do
+        FILE_DIFF="${{ steps.diff.outputs.diff }}"
+        while read path;
+        do
           directory="$( echo $path )"
-          if [[ $directory == application/services/custom_services/apigateway/* ]]; then
+        if [[ $directory == application/services/custom_services/apigateway/* ]]; then
           echo "::set-output name=microservices::commited" 
           echo "::set-output name=apigateway::apigateway"
           continue
@@ -206,8 +206,8 @@ jobs:
         elif [[ $directory == application/services/adminmanager/* ]]; then
           echo "::set-output name=microservices::commited"
           echo "::set-output name=adminmanager::adminmanager" 
-          continue   
-          
+          continue
+        else
             echo "::set-output name=microservices::notcommited"
           fi
           done <<< "$FILE_DIFF"  
