@@ -24,7 +24,7 @@ env:
   
 jobs:
   validation:
-    runs-on: ubuntu-latest 
+    runs-on: self-hosted
     outputs:
         configuration: ${{ steps.branch-commit.outputs.configuration }}
         branch: ${{ steps.ec2.outputs.short_ref }}
@@ -43,7 +43,15 @@ jobs:
                     ${{ steps.microservice.outputs.securitymanager }} 
                     ${{ steps.microservice.outputs.systementry }} 
                     ${{ steps.microservice.outputs.personmanager }}
-                    ${{ steps.microservice.outputs.adminmanager }}
+                    ${{ steps.microservice.outputs.ghost-wcmx }} 
+                    ${{ steps.microservice.outputs.exercisereportingmanager }}
+                    ${{ steps.microservice.outputs.reportingmanager }} 
+                    ${{ steps.microservice.outputs.ghost }} 
+                    ${{ steps.microservice.outputs.exercisemanager }}
+                    ${{ steps.microservice.outputs.mealboxmanager }}
+                    ${{ steps.microservice.outputs.mysql }} 
+                    ${{ steps.microservice.outputs.elasticsearch }}
+                    ${{ steps.microservice.outputs.kibana }} 
                     ${{ steps.microservice.outputs.fluentd }}
                     ${{ steps.microservice.outputs.mongo }}                     
                     ${{ steps.microservice.outputs.vault }}   
@@ -135,10 +143,6 @@ jobs:
           echo "::set-output name=microservices::commited" 
           echo "::set-output name=apigateway::apigateway"
           continue
-        elif [[ $directory == application/services/default_services/authproxy/* ]]; then
-          echo "::set-output name=microservices::commited"
-          echo "::set-output name=authproxy::authproxy" 
-          continue
         elif [[ $directory == application/services/custom_services/foodmanager/* ]]; then
           echo "::set-output name=microservices::commited"
           echo "::set-output name=foodmanager::foodmanager" 
@@ -151,8 +155,14 @@ jobs:
           echo "::set-output name=microservices::commited"
           echo "::set-output name=gepitemtagsmanager::gepitemtagsmanager" 
           continue
-       
-       
+        elif [[ $directory == application/services/custom_services/exercisemanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=exercisemanager::exercisemanager" 
+          continue
+        elif [[ $directory == application/services/custom_services/exercisereportingmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=exercisereportingmanager::exercisereportingmanager" 
+          continue
         elif [[ $directory == application/services/custom_services/homedatamanager/* ]]; then
           echo "::set-output name=microservices::commited"
           echo "::set-output name=homedatamanager::homedatamanager" 
@@ -161,8 +171,22 @@ jobs:
           echo "::set-output name=microservices::commited"
           echo "::set-output name=mealsmanager::mealsmanager" 
           continue
-       
-          
+        elif [[ $directory == application/services/custom_services/ghostapi/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=ghostapi::ghostapi" 
+          continue
+        elif [[ $directory == application/services/custom_services/mealboxmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=mealboxmanager::mealboxmanager" 
+          continue
+        elif [[ $directory == application/services/custom_services/nutritionmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=nutritionmanager::nutritionmanager" 
+          continue  
+        elif [[ $directory == application/services/custom_services/reportingmanager/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=reportingmanager::reportingmanager" 
+          continue  
         elif [[ $directory == application/services/custom_services/personmanager/* ]]; then
           echo "::set-output name=microservices::commited"
           echo "::set-output name=personmanager::personmanager" 
@@ -182,6 +206,12 @@ jobs:
         elif [[ $directory == application/services/custom_services/systementry/* ]]; then
           echo "::set-output name=microservices::commited"
           echo "::set-output name=systementry::systementry" 
+          continue
+
+
+        elif [[ $directory == application/services/default_services/authproxy/* ]]; then
+          echo "::set-output name=microservices::commited"
+          echo "::set-output name=authproxy::authproxy" 
           continue
         elif [[ $directory == application/services/default_services/fluentd/* ]]; then
           echo "::set-output name=microservices::commited"
