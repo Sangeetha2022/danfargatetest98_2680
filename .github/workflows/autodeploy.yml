@@ -120,7 +120,7 @@ jobs:
             echo "::set-output name=microservices::commited" 
             echo "::set-output name=Authproxy::authproxy"
             continue     
-          
+          else
             echo "::set-output name=microservices::notcommited"
           fi
           done <<< "$FILE_DIFF"  
